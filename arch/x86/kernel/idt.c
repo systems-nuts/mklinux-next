@@ -112,7 +112,7 @@ static const __initconst struct idt_data def_idts[] = {
 static const __initconst struct idt_data apic_idts[] = {
 	
 #ifdef CONFIG_POPCORN_KMSG
-	INTG(POPCORN_KMSG_VECTOR,	popcorn_kmsg_interrupt);
+	INTG(POPCORN_KMSG_VECTOR,	popcorn_kmsg_interrupt),
 #endif
 	
 #ifdef CONFIG_SMP

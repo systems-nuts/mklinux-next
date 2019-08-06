@@ -34,7 +34,8 @@
 #include <asm/virtext.h>
 */
 
-extern popcorn_kmsg_interupt_handler(struct pt_regs *regs, unsigned long long timestamp);
+
+void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp) = 0;
 
 
 __visible void __irq_entry smp_popcorn_kmsg_interrupt(struct pt_regs *regs)
