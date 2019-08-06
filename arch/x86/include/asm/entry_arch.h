@@ -24,6 +24,13 @@ BUILD_INTERRUPT(kvm_posted_intr_wakeup_ipi, POSTED_INTR_WAKEUP_VECTOR)
 BUILD_INTERRUPT(kvm_posted_intr_nested_ipi, POSTED_INTR_NESTED_VECTOR)
 #endif
 
+/* POPCORN kmsg IPI used for inter-cpu/inter-kernel messaging
+ * Note that we could have used X86_PLATFORM_IPI_VECTOR 
+ */
+#ifdef CONFIG_POPCORN_KMSG
+BUILD_INTERRUPT(popcorn_kmsg_interrupt, POPCORN_KMSG_VECTOR)
+#endif
+
 /*
  * every pentium local APIC has two 'local interrupts', with a
  * soft-definable vector attached to both interrupts, one of

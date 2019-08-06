@@ -42,6 +42,10 @@ extern asmlinkage void spurious_interrupt(void);
 extern asmlinkage void thermal_interrupt(void);
 extern asmlinkage void reschedule_interrupt(void);
 
+#ifdef CONFIG_POPCORN_KMSG
+extern asmlinkage void popcorn_kmsg_interrupt(void);
+#endif
+
 extern asmlinkage void irq_move_cleanup_interrupt(void);
 extern asmlinkage void reboot_interrupt(void);
 extern asmlinkage void threshold_interrupt(void);

@@ -110,6 +110,11 @@ static const __initconst struct idt_data def_idts[] = {
  * The APIC and SMP idt entries
  */
 static const __initconst struct idt_data apic_idts[] = {
+	
+#ifdef CONFIG_POPCORN_KMSG
+	INTG(POPCORN_KMSG_VECTOR,	popcorn_kmsg_interrupt);
+#endif
+	
 #ifdef CONFIG_SMP
 	INTG(RESCHEDULE_VECTOR,		reschedule_interrupt),
 	INTG(CALL_FUNCTION_VECTOR,	call_function_interrupt),

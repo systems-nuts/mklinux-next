@@ -106,6 +106,12 @@ int arch_show_interrupts(struct seq_file *p, int prec)
 		seq_printf(p, "%10u ", irq_stats(j)->irq_tlb_count);
 	seq_puts(p, "  TLB shootdowns\n");
 #endif
+#ifdef CONFIG_POPCORN_KMSG
+	seq_printf(p, "%*s: ", prec, "PKM");
+	for_each_online_cpu(j)
+		seq_printf(p, "%10u ", irq_stats(j)->irq_popcorn_kmsg_count);
+	seq_printf(p, "  Popcorn kmsg interrupts\n");
+#endif
 #ifdef CONFIG_X86_THERMAL_VECTOR
 	seq_printf(p, "%*s: ", prec, "TRM");
 	for_each_online_cpu(j)
@@ -214,6 +220,9 @@ u64 arch_irq_stat_cpu(unsigned int cpu)
 	sum += per_cpu(mce_exception_count, cpu);
 	sum += per_cpu(mce_poll_count, cpu);
 #endif
+#ifdef CONFIG_POPCORN_KMSG
+	sum += irq_stats(cpu)->irq_popcorn_kmsg_count;
+#endif	
 	return sum;
 }
 

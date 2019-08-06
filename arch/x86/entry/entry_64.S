@@ -915,6 +915,10 @@ apicinterrupt CALL_FUNCTION_VECTOR		call_function_interrupt		smp_call_function_i
 apicinterrupt RESCHEDULE_VECTOR			reschedule_interrupt		smp_reschedule_interrupt
 #endif
 
+#ifdef CONFIG_POPCORN_KMSG
+apicinterrupt POPCORN_KMSG_VECTOR	popcorn_kmsg_interrupt	smp_popcorn_kmsg_interrupt
+#endif
+
 apicinterrupt ERROR_APIC_VECTOR			error_interrupt			smp_error_interrupt
 apicinterrupt SPURIOUS_APIC_VECTOR		spurious_interrupt		smp_spurious_interrupt
 

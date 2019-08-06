@@ -106,6 +106,10 @@
 
 #define LOCAL_TIMER_VECTOR		0xec
 
+#ifdef CONFIG_POPCORN_KMSG
+#define POPCORN_KMSG_VECTOR 0xcd
+#endif
+
 #define NR_VECTORS			 256
 
 #ifdef CONFIG_X86_LOCAL_APIC
