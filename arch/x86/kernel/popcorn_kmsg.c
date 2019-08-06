@@ -36,7 +36,7 @@
 
 
 void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp) = 0;
-
+EXPORT_SYMBOL(popcorn_kmsg_interrupt_handler);
 
 __visible void __irq_entry smp_popcorn_kmsg_interrupt(struct pt_regs *regs)
 {
