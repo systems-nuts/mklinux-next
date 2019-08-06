@@ -2918,3 +2918,5 @@ config HAVE_GENERIC_GUP
 source "drivers/firmware/Kconfig"
 
 source "arch/x86/kvm/Kconfig"
+
+source "kernel/Kconfig.popcorn"
