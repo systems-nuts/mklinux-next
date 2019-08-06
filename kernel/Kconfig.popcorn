@@ -5,3 +5,6 @@ config POPCORN_KMSG
 	default y
 	help
 		Enable or disable support for inter and intra kernel messaging in Popcorn multi-kernel.
+		
+
+endmenu
