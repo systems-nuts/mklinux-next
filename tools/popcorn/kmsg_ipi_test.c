@@ -46,7 +46,7 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 
 //local_irq_save(flags);
 //irq_enter();
-        printk("ciao %d\n", smp_processor_id());
+//        printk("ciao %d\n", smp_processor_id());
         done = 1;
 //irq_exit();
 //local_irq_restore(flags);
@@ -83,16 +83,20 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 
 
 	preempt_disable();	
-if (cpu_is_offline(cpu))
-	printk("cpu is offline! %d\n", cpu);
+if (cpu_is_offline(cpu)) {
+	printk("cpu is offline! %d\n", cpu); // <<< put this on top
+	return 0;
+}
 else
 	apic->send_IPI(cpu, POPCORN_KMSG_VECTOR);
-	tsent = rdtsc();
+//	tsent = rdtsc();
 	
 	preempt_enable();
+
+tsent = rdtsc();
 	
-//	while (!done || (inc++ < 1000000000) ) {};//busy waiting
-//	tfinish = rdtsc();
+	while (!done || (inc++ < 1000000000) ) {};//busy waiting TODO define
+	tfinish = rdtsc();
 
 	if (ts) {
 		ts[0] = tinit;
@@ -100,6 +104,8 @@ else
 		ts[2] = tfinish;
 		return 3;
 	}
+
+printk("done: %d inc: %ld\n", done, inc);
 		
 	return 0;
 }
@@ -115,7 +121,7 @@ printk("total cpu ids %d %d %d\n", nr_cpu_ids, cpu, smp_processor_id());
 		return 0;
 	
 //	local_irq_save(flags);
-	ret = kmsg_ipi_test(timestamps, cpu);
+	ret = __kmsg_ipi_test(timestamps, cpu);
 //	local_irq_restore(flags);
 
 
@@ -180,8 +186,10 @@ printk("all good but ppos is %ld, ret is %d\n", *ppos, ret);
 		return 0;
 	len += sprintf(buf,"current = %d target = %d\n", smp_processor_id(), target_cpu);
 	len += sprintf(buf + len,"init = %lld sent = %lld finish = %lld\n", timestamps[0], timestamps[1], timestamps[2]);
+	len += sprintf(buf + len,"%lld %lld\n", timestamps[1] - timestamps[0], timestamps[2] - timestamps[1]);
 
-printk("all good\n");
+
+printk("all good done is %d\n", done);
 	
 	if(copy_to_user(ubuf,buf,len))
 		return -EFAULT;
