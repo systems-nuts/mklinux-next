@@ -38,96 +38,92 @@ static int target_cpu;
 static int test_numa_node=0;
 module_param(test_numa_node,int,0660);
 
+static unsigned long long tinterrupt[3];
+
 extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
 
 void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 {
-//unsigned long flags;
+	register unsigned long long tdone, tenter = rdtsc();
+	//unsigned long flags;
 
-//local_irq_save(flags);
-//irq_enter();
-//        printk("ciao %d\n", smp_processor_id());
-        done = 1;
-//irq_exit();
-//local_irq_restore(flags);
-
+	//local_irq_save(flags);
+	//irq_enter();
+	done = 1;
+	//irq_exit();
+	//local_irq_restore(flags);
+	timestamp = rdtsc();
+	
+	// save the timestamps
+	tinterrupt[0] = ts;
+	tinterrupt[1] = tdone;
+	tinterrupt[2] = tenter;
 }
 
-#if 0
-static unsigned long calculate_tsc_overhead(void)
-{
-	unsigned long t0, t1, overhead = ~0UL;
-	int i;
+#define MAX_LOOP 1000000000
 
-	for (i = 0; i < 1000; i++) {
-		rdtscll(t0);
-		asm volatile("");
-		rdtscll(t1);
-		if (t1 - t0 < overhead)
-			overhead = t1 - t0;
-	}
-
-	printk("tsc overhead is %ld\n", overhead);
-
-	return overhead;
-}
-#endif
-
+/*
+ * returns the number of iterations if successful (< MAX_LOOP) or zero if error
+ * i.e., the IPI didn't succeded; a negative value means that the cpu is offline
+ */
 inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 {
-	register unsigned long long tinit, tsent, tfinish;
+	register unsigned long long tinit, tpdis, tsent, tpen, tfinish;
 	register unsigned long inc =0;
 
+	if (cpu_is_offline(cpu)) {
+		printk("%s: cpu %d is offline! %d\n", __func__, cpu);
+		return -1;
+	}
+	
 	done = 0;
 	tinit = rdtsc();
 
-
-	preempt_disable();	
-if (cpu_is_offline(cpu)) {
-	printk("cpu is offline! %d\n", cpu); // <<< put this on top
-	return 0;
-}
-else
+	preempt_disable();
+	tpdis = rdtsc();
 	apic->send_IPI(cpu, POPCORN_KMSG_VECTOR);
-//	tsent = rdtsc();
-	
+	tsent = rdtsc();
 	preempt_enable();
-
-tsent = rdtsc();
+	tpen = rdtsc();
 	
-	while (!done || (inc++ < 1000000000) ) {};//busy waiting TODO define
+	while (!done || (inc++ < MAX_LOOP) ) {};//busy waiting
 	tfinish = rdtsc();
 
 	if (ts) {
 		ts[0] = tinit;
-		ts[1] = tsent;
-		ts[2] = tfinish;
-		return 3;
+		ts[1] = tpdis;
+		ts[2] = tsent;
+		ts[3] = tpen;
+		ts[4] = tfinish;
 	}
 
-printk("done: %d inc: %ld\n", done, inc);
-		
-	return 0;
+	if (done)
+		return inc;
+	else
+		return 0;
 }
 
 int kmsg_ipi_test(unsigned long long *timestamps, int cpu)
 {
-	unsigned long flags;
-	int ret = 0;
+//	unsigned long flags;
+	int ret = 0, prev_cpu, next_cpu;
 
-printk("total cpu ids %d %d %d\n", nr_cpu_ids, cpu, smp_processor_id());
+	if (cpu > nr_cpu_ids) {
+		printk("%s: cpu %d > nr_cpu_ids %d\n", __func__, cpu, nr_cpu_ids);
+		return -1;
+	}
 	
-	if (cpu > nr_cpu_ids)
-		return 0;
-	
+	prev_cpu = smp_processor_id();
 //	local_irq_save(flags);
 	ret = __kmsg_ipi_test(timestamps, cpu);
 //	local_irq_restore(flags);
-
-
-printk("total cpu ids %d %d %d %d RET\n", nr_cpu_ids, cpu, smp_processor_id(), ret);
-
-
+	next_cpu = smp_processor_id();
+	
+	if (next_cpu != prev_cpu) {
+		printk("%s: prev_cpu %d != next_cpu %d\n", __func__, prev_cpu, next_cpu);
+		return -1;
+	}
+	
 	return ret;
 }
 
@@ -136,7 +132,7 @@ printk("total cpu ids %d %d %d %d RET\n", nr_cpu_ids, cpu, smp_processor_id(), r
 static struct proc_dir_entry *ent;
 
 /*
- * write to setup the target _cpu
+ * write to setup the target_cpu
  */ 
 static ssize_t kmsg_ipi_write(struct file *file, const char __user *ubuf, size_t count, loff_t *ppos) 
 {
@@ -151,20 +147,6 @@ static ssize_t kmsg_ipi_write(struct file *file, const char __user *ubuf, size_t
 		return -EFAULT;
 	target_cpu = i; 
 	c = strlen(buf);
-
-printk("setting target cpu to %d done %d\n", target_cpu, done);
-
-	popcorn_kmsg_interrupt_handler(0, 0);
-
-printk("setting target cpu to %d done %d\n", target_cpu, done);
-
-        int len=0, ret =-1;
-        unsigned long long timestamps[3];
-
-        ret = kmsg_ipi_test(timestamps, target_cpu);
-printk("returned %d\n", ret);
-
-
 	*ppos = c;
 	return c;
 }
@@ -176,21 +158,26 @@ static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, 
 {
 	char buf[BUFSIZE];
 	int len=0, ret =-1;
-	unsigned long long timestamps[3];
+	unsigned long long timestamps[5];
 	
+	// run benchmark
 	ret = kmsg_ipi_test(timestamps, target_cpu);
 
-printk("all good but ppos is %ld, ret is %d\n", *ppos, ret);
-	
 	if(*ppos > 0)
 		return 0;
-	len += sprintf(buf,"current = %d target = %d\n", smp_processor_id(), target_cpu);
-	len += sprintf(buf + len,"init = %lld sent = %lld finish = %lld\n", timestamps[0], timestamps[1], timestamps[2]);
-	len += sprintf(buf + len,"%lld %lld\n", timestamps[1] - timestamps[0], timestamps[2] - timestamps[1]);
-
-
-printk("all good done is %d\n", done);
+	len += sprintf(buf,"current %d target %d\n", smp_processor_id(), target_cpu);
 	
+	if (ret < 0)
+		len += sprintf(buf + len, "error cpu\n");
+	else if (ret == 0)
+		len += sprintf(buf + len, "error ipi\n");
+	else {
+		len += sprintf(buf + len,"sender %lld %lld %lld %lld %lld (%d)\n",
+						timestamps[0], timestamps[1], timestamps[2], timestamps[3], timestamps[4], ret);
+		len += sprintf(buf + len,"inthnd %lld %lld %lld\n",
+						tinterrupt[0], tinterrupt[1], tinterrupt[2]);
+	}
+
 	if(copy_to_user(ubuf,buf,len))
 		return -EFAULT;
 	*ppos = len;
