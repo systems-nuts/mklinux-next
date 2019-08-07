@@ -91,9 +91,9 @@ int kmsg_ipi_test(unsigned long long *timestamps, int cpu)
 	unsigned long flags;
 	int ret = 0;
 
-	local_irq_save(flags);
+//	local_irq_save(flags);
 	ret = kmsg_ipi_test(timestamps, cpu);
-	local_irq_restore(flags);
+//	local_irq_restore(flags);
 
 	return ret;
 }
@@ -118,6 +118,9 @@ static ssize_t kmsg_ipi_write(struct file *file, const char __user *ubuf, size_t
 		return -EFAULT;
 	target_cpu = i; 
 	c = strlen(buf);
+
+printk("setting target cpu to %d\n", target_cpu);
+
 	*ppos = c;
 	return c;
 }
@@ -133,10 +136,12 @@ static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, 
 	
 	kmsg_ipi_test(timestamps, target_cpu);
 	
-	if(*ppos > 0 || count < BUFSIZE)
+	if(*ppos > 0)
 		return 0;
 	len += sprintf(buf,"current = %d target = %d\n", smp_processor_id(), target_cpu);
 	len += sprintf(buf + len,"init = %lld sent = %lld finish = %lld\n", timestamps[0], timestamps[1], timestamps[2]);
+
+printk("all good\n");
 	
 	if(copy_to_user(ubuf,buf,len))
 		return -EFAULT;
