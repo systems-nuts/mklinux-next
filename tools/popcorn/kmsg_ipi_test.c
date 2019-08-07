@@ -40,6 +40,7 @@ extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned lon
 
 static void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 {
+	printk("ciao %d\n", smp_processor_id());
 	done = 1;
 }
 
@@ -91,6 +92,11 @@ int kmsg_ipi_test(unsigned long long *timestamps, int cpu)
 	unsigned long flags;
 	int ret = 0;
 
+printk("total cpu ids %d %d %d\n", nr_cpu_ids, cpu, smp_processor_id());
+	
+	if (cpu > nr_cpu_ids)
+		return 0;
+	
 	local_irq_save(flags);
 	ret = kmsg_ipi_test(timestamps, cpu);
 	local_irq_restore(flags);
