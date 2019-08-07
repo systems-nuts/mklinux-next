@@ -7,17 +7,21 @@
 #include <linux/smp.h>
 #include <linux/syscalls.h>
 #include <linux/kernel.h>
-#include <linux/multikernel.h>
 #include <linux/list.h>
 #include <linux/slab.h>
 
-#include <asm/system.h>
+#include <linux/module.h>
+#include <linux/moduleparam.h>
+#include <linux/init.h>
+#include <linux/proc_fs.h>
+
 #include <asm/apic.h>
 #include <asm/hardirq.h>
 #include <asm/setup.h>
 #include <asm/bootparam.h>
 #include <asm/errno.h>
 #include <asm/msr.h>
+#include <asm/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Antonio Barbalace");
@@ -29,8 +33,10 @@ static int target_cpu;
 /*
  * when you start the module you should indicate on which node you want to allocate the done variable
  */
-static int numa_node=0;
-module_param(numa_node,int,0660);
+static int test_numa_node=0;
+module_param(test_numa_node,int,0660);
+
+extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
 
 static void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 {
@@ -64,16 +70,16 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	done = 0;
 	tinit = rdtsc();
 	
-	apic->send_IPI_mask(cpumask_of(cpu), POPCORN_KMSG_INTERRUPT_VECTOR);
+	apic->send_IPI_mask(cpumask_of(cpu), POPCORN_KMSG_VECTOR);
 	tsent = rdtsc();
 	
 	while (!done) {} //busy waiting
 	tfinish = rdtsc();
 
 	if (ts) {
-		timers[0] = tinit;
-		timers[1] = tsent;
-		timers[2] = tfinish;
+		ts[0] = tinit;
+		ts[1] = tsent;
+		ts[2] = tfinish;
 		return 3;
 	}
 		
@@ -93,7 +99,7 @@ int kmsg_ipi_test(unsigned long long *timestamps, int cpu)
 }
 
 
-#define BUFSIZE 4096
+#define BUFSIZE 1024
 static struct proc_dir_entry *ent;
 
 /*
@@ -125,7 +131,7 @@ static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, 
 	int len=0;
 	unsigned long long timestamps[3];
 	
-	kmsg_ipi_test(&timestamps, target_cpu);
+	kmsg_ipi_test(timestamps, target_cpu);
 	
 	if(*ppos > 0 || count < BUFSIZE)
 		return 0;
@@ -142,7 +148,7 @@ static struct file_operations kmsg_ipi_ops =
 {
 	.owner = THIS_MODULE,
 	.read = kmsg_ipi_read,
-	.write = kmsg_ipi_mywrite,
+	.write = kmsg_ipi_write,
 };
 
 static int kmsg_ipi_test_init(void)
