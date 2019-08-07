@@ -43,10 +43,12 @@ __visible void __irq_entry smp_popcorn_kmsg_interrupt(struct pt_regs *regs)
 	unsigned long long timestamp = rdtsc(); //rdtsc_ordered()
 	ack_APIC_irq();
 	inc_irq_stat(irq_popcorn_kmsg_count);
+	irq_enter(); // irq_enter() and irq_exit() are not export_symbol
 
 	if (popcorn_kmsg_interrupt_handler)
 		popcorn_kmsg_interrupt_handler(regs, timestamp);
 	
+	irq_exit();
 	return;
 }
 

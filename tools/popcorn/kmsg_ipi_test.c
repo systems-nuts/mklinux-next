@@ -3,12 +3,14 @@
  */
 
 #include <linux/irq.h>
+#include <linux/cpu.h>
 #include <linux/interrupt.h>
 #include <linux/smp.h>
 #include <linux/syscalls.h>
 #include <linux/kernel.h>
 #include <linux/list.h>
 #include <linux/slab.h>
+#include <linux/gfp.h>
 
 #include <linux/module.h>
 #include <linux/moduleparam.h>
@@ -38,10 +40,17 @@ module_param(test_numa_node,int,0660);
 
 extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
 
-static void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
+void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 {
-	printk("ciao %d\n", smp_processor_id());
-	done = 1;
+//unsigned long flags;
+
+//local_irq_save(flags);
+//irq_enter();
+        printk("ciao %d\n", smp_processor_id());
+        done = 1;
+//irq_exit();
+//local_irq_restore(flags);
+
 }
 
 #if 0
@@ -67,15 +76,23 @@ static unsigned long calculate_tsc_overhead(void)
 inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 {
 	register unsigned long long tinit, tsent, tfinish;
+	register unsigned long inc =0;
 
 	done = 0;
 	tinit = rdtsc();
-	
-	apic->send_IPI_mask(cpumask_of(cpu), POPCORN_KMSG_VECTOR);
+
+
+	preempt_disable();	
+if (cpu_is_offline(cpu))
+	printk("cpu is offline! %d\n", cpu);
+else
+	apic->send_IPI(cpu, POPCORN_KMSG_VECTOR);
 	tsent = rdtsc();
 	
-	while (!done) {} //busy waiting
-	tfinish = rdtsc();
+	preempt_enable();
+	
+//	while (!done || (inc++ < 1000000000) ) {};//busy waiting
+//	tfinish = rdtsc();
 
 	if (ts) {
 		ts[0] = tinit;
@@ -101,6 +118,10 @@ printk("total cpu ids %d %d %d\n", nr_cpu_ids, cpu, smp_processor_id());
 	ret = kmsg_ipi_test(timestamps, cpu);
 //	local_irq_restore(flags);
 
+
+printk("total cpu ids %d %d %d %d RET\n", nr_cpu_ids, cpu, smp_processor_id(), ret);
+
+
 	return ret;
 }
 
@@ -125,7 +146,18 @@ static ssize_t kmsg_ipi_write(struct file *file, const char __user *ubuf, size_t
 	target_cpu = i; 
 	c = strlen(buf);
 
-printk("setting target cpu to %d\n", target_cpu);
+printk("setting target cpu to %d done %d\n", target_cpu, done);
+
+	popcorn_kmsg_interrupt_handler(0, 0);
+
+printk("setting target cpu to %d done %d\n", target_cpu, done);
+
+        int len=0, ret =-1;
+        unsigned long long timestamps[3];
+
+        ret = kmsg_ipi_test(timestamps, target_cpu);
+printk("returned %d\n", ret);
+
 
 	*ppos = c;
 	return c;
@@ -137,10 +169,12 @@ printk("setting target cpu to %d\n", target_cpu);
 static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, loff_t *ppos) 
 {
 	char buf[BUFSIZE];
-	int len=0;
+	int len=0, ret =-1;
 	unsigned long long timestamps[3];
 	
-	kmsg_ipi_test(timestamps, target_cpu);
+	ret = kmsg_ipi_test(timestamps, target_cpu);
+
+printk("all good but ppos is %ld, ret is %d\n", *ppos, ret);
 	
 	if(*ppos > 0)
 		return 0;
