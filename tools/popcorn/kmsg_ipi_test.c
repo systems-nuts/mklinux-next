@@ -217,7 +217,7 @@ static int kmsg_ipi_test_init(void)
 	ent = proc_create("ipi_test", 0660, NULL, &kmsg_ipi_ops);
 	printk(KERN_ALERT "kmsg_ipi_test registered /proc/kmsg_ipi_test\n");
 
-	printk("kms_ipi_test cpu_khz %d tsc_khz %d\n", cpu_khz, tsc_khz);
+	printk("kmsg_ipi_test cpu_khz %d tsc_khz %d\n", cpu_khz, tsc_khz);
 	
 	/* 
 	 * an alternative is to use the x86_platform_ipi_callback defined in

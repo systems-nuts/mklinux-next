@@ -6,7 +6,7 @@ import os
 
 # check command line arguments
 if (len(sys.argv)!=2):
-  print "Usage: " + sys.argv[0] + "input file"
+  print "Usage: " + sys.argv[0] + " input file"
   sys.exit(1)
 # check if file exists
 file_exist = os.path.isfile(sys.argv[1])
