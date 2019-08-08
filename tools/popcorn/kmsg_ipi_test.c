@@ -50,7 +50,7 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 	//local_irq_save(flags);
 	//irq_enter();
 	done = 1;
-	mb();
+	//mb();
 	//irq_exit();
 	//local_irq_restore(flags);
 	tdone = rdtsc();
