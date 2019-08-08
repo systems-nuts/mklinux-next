@@ -1,7 +1,6 @@
 /* 
- * Antonio Barbalace 2018
- * 
- * Microbenchmark for memory management in user space
+ * x86 rdtsc calibration and overhead tool
+ * Antonio Barbalace, Stevens 2019
  */
 
 #include <unistd.h>
