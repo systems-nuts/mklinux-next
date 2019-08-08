@@ -50,17 +50,18 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 	//local_irq_save(flags);
 	//irq_enter();
 	done = 1;
+	//mb();
 	//irq_exit();
 	//local_irq_restore(flags);
-	timestamp = rdtsc();
+	tdone = rdtsc();
 	
 	// save the timestamps
 	tinterrupt[0] = ts;
-	tinterrupt[1] = tdone;
-	tinterrupt[2] = tenter;
+	tinterrupt[1] = tenter;
+	tinterrupt[2] = tdone;
 }
 
-#define MAX_LOOP 1000000000
+#define MAX_LOOP 1999999999
 
 /*
  * returns the number of iterations if successful (< MAX_LOOP) or zero if error
@@ -72,7 +73,7 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	register unsigned long inc =0;
 
 	if (cpu_is_offline(cpu)) {
-		printk("%s: cpu %d is offline! %d\n", __func__, cpu);
+		printk("%s: cpu %d is offline!\n", __func__, cpu);
 		return -1;
 	}
 	
@@ -86,7 +87,7 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	preempt_enable();
 	tpen = rdtsc();
 	
-	while (!done || (inc++ < MAX_LOOP) ) {};//busy waiting
+	while ((done == 0) && (inc++ < MAX_LOOP) ) {};//busy waiting
 	tfinish = rdtsc();
 
 	if (ts) {
@@ -159,23 +160,31 @@ static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, 
 	char buf[BUFSIZE];
 	int len=0, ret =-1;
 	unsigned long long timestamps[5];
-	
+
+        if(*ppos > 0)
+                return 0;
+
 	// run benchmark
 	ret = kmsg_ipi_test(timestamps, target_cpu);
 
-	if(*ppos > 0)
-		return 0;
 	len += sprintf(buf,"current %d target %d\n", smp_processor_id(), target_cpu);
-	
 	if (ret < 0)
 		len += sprintf(buf + len, "error cpu\n");
 	else if (ret == 0)
 		len += sprintf(buf + len, "error ipi\n");
 	else {
+#ifdef TIMESTAMPS
 		len += sprintf(buf + len,"sender %lld %lld %lld %lld %lld (%d)\n",
 						timestamps[0], timestamps[1], timestamps[2], timestamps[3], timestamps[4], ret);
 		len += sprintf(buf + len,"inthnd %lld %lld %lld\n",
 						tinterrupt[0], tinterrupt[1], tinterrupt[2]);
+#else
+                len += sprintf(buf + len,"sender %lld %lld %lld %lld (%d)\n",
+                                                timestamps[1] - timestamps[0], timestamps[2] - timestamps[1],
+						timestamps[3] - timestamps[2], timestamps[4] - timestamps[3], ret);
+                len += sprintf(buf + len,"inthnd %lld %lld\n",
+                                                tinterrupt[1] - tinterrupt[0], tinterrupt[2] - tinterrupt[1]);
+#endif
 	}
 
 	if(copy_to_user(ubuf,buf,len))
