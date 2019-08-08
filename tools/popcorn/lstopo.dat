@@ -1,0 +1,243 @@
+elliot@gigi:~/git/mklinux-next$ lstopo -p
+Machine (377GB total)
+  NUMANode P#0 (94GB)
+    Package P#0 + L3 (25MB)
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#0
+        PU P#0
+        PU P#72
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#4
+        PU P#4
+        PU P#76
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#1
+        PU P#8
+        PU P#80
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#3
+        PU P#12
+        PU P#84
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#2
+        PU P#16
+        PU P#88
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#11
+        PU P#20
+        PU P#92
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#8
+        PU P#24
+        PU P#96
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#10
+        PU P#28
+        PU P#100
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#9
+        PU P#32
+        PU P#104
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#20
+        PU P#36
+        PU P#108
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#16
+        PU P#40
+        PU P#112
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#19
+        PU P#44
+        PU P#116
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#17
+        PU P#48
+        PU P#120
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#18
+        PU P#52
+        PU P#124
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#24
+        PU P#56
+        PU P#128
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#27
+        PU P#60
+        PU P#132
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#25
+        PU P#64
+        PU P#136
+      L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#26
+        PU P#68
+        PU P#140
+    HostBridge P#0
+      PCI 8086:a1d2
+      PCI 8086:a182
+      PCIBridge
+        PCI 8086:1521
+          Net "eno99"
+        PCI 8086:1521
+          Net "eno100"
+      PCIBridge
+        PCIBridge
+          PCI 102b:0536
+    HostBridge P#1
+      PCIBridge
+        PCI 8086:1572
+          Net "eno113"
+        PCI 8086:1572
+          Net "eno114"
+    HostBridge P#2
+      PCIBridge
+        PCI 1000:0097
+  NUMANode P#1 (94GB) + Package P#1 + L3 (25MB)
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#0
+      PU P#1
+      PU P#73
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#4
+      PU P#5
+      PU P#77
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#1
+      PU P#9
+      PU P#81
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#3
+      PU P#13
+      PU P#85
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#2
+      PU P#17
+      PU P#89
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#11
+      PU P#21
+      PU P#93
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#8
+      PU P#25
+      PU P#97
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#10
+      PU P#29
+      PU P#101
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#9
+      PU P#33
+      PU P#105
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#20
+      PU P#37
+      PU P#109
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#16
+      PU P#41
+      PU P#113
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#19
+      PU P#45
+      PU P#117
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#17
+      PU P#49
+      PU P#121
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#18
+      PU P#53
+      PU P#125
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#24
+      PU P#57
+      PU P#129
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#27
+      PU P#61
+      PU P#133
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#25
+      PU P#65
+      PU P#137
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#26
+      PU P#69
+      PU P#141
+  NUMANode P#2 (94GB) + Package P#2 + L3 (25MB)
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#0
+      PU P#2
+      PU P#74
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#4
+      PU P#6
+      PU P#78
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#1
+      PU P#10
+      PU P#82
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#3
+      PU P#14
+      PU P#86
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#2
+      PU P#18
+      PU P#90
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#11
+      PU P#22
+      PU P#94
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#8
+      PU P#26
+      PU P#98
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#10
+      PU P#30
+      PU P#102
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#9
+      PU P#34
+      PU P#106
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#20
+      PU P#38
+      PU P#110
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#16
+      PU P#42
+      PU P#114
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#19
+      PU P#46
+      PU P#118
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#17
+      PU P#50
+      PU P#122
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#18
+      PU P#54
+      PU P#126
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#24
+      PU P#58
+      PU P#130
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#27
+      PU P#62
+      PU P#134
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#25
+      PU P#66
+      PU P#138
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#26
+      PU P#70
+      PU P#142
+  NUMANode P#3 (94GB) + Package P#3 + L3 (25MB)
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#0
+      PU P#3
+      PU P#75
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#4
+      PU P#7
+      PU P#79
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#1
+      PU P#11
+      PU P#83
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#3
+      PU P#15
+      PU P#87
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#2
+      PU P#19
+      PU P#91
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#11
+      PU P#23
+      PU P#95
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#8
+      PU P#27
+      PU P#99
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#10
+      PU P#31
+      PU P#103
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#9
+      PU P#35
+      PU P#107
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#20
+      PU P#39
+      PU P#111
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#16
+      PU P#43
+      PU P#115
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#19
+      PU P#47
+      PU P#119
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#17
+      PU P#51
+      PU P#123
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#18
+      PU P#55
+      PU P#127
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#24
+      PU P#59
+      PU P#131
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#27
+      PU P#63
+      PU P#135
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#25
+      PU P#67
+      PU P#139
+    L2 (1024KB) + L1d (32KB) + L1i (32KB) + Core P#26
+      PU P#71
+      PU P#143
