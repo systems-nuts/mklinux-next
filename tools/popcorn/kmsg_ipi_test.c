@@ -25,6 +25,8 @@
 #include <asm/msr.h>
 #include <asm/uaccess.h>
 
+#include <asm/irq.h>
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Antonio Barbalace");
 
@@ -200,10 +202,19 @@ static struct file_operations kmsg_ipi_ops =
 	.write = kmsg_ipi_write,
 };
 
+
+
 static int kmsg_ipi_test_init(void)
 {
 	ent = proc_create("ipi_test", 0660, NULL, &kmsg_ipi_ops);
 	printk(KERN_ALERT "kmsg_ipi_test registered /proc/kmsg_ipi_test\n");
+	
+	/* 
+	 * an alternative is to use the x86_platform_ipi_callback
+	 * but it is not exported either
+	 */
+	if (x86_platform_ipi_callback == 0)
+		printk(KERN_WARNING "can use x86_platform_ipi_callback\n");
 	
 	if (!popcorn_kmsg_interrupt_handler)
 		popcorn_kmsg_interrupt_handler = __smp_popcorn_kmsg_interrupt;
