@@ -1,5 +1,6 @@
 /*
  * IPI latency measurement for Popcorn Kernel Messaging
+ * Antonio Barbalace, Stevens 2019
  */
 
 #include <linux/irq.h>
@@ -28,6 +29,12 @@
 
 //#include <asm/irq.h> //for x86_platform_ipi_callback
 
+#ifdef ORDERED
+ #define RDTSC rdtsc_ordered
+#else
+ #define RDTSC rdtsc
+#endif
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Antonio Barbalace");
 
@@ -47,7 +54,7 @@ extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned lon
 
 void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 {
-	register unsigned long long tdone, tenter = rdtsc();
+	register unsigned long long tdone, tenter = RDTSC();
 	//unsigned long flags;
 
 	//local_irq_save(flags);
@@ -56,7 +63,7 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 	//mb();
 	//irq_exit();
 	//local_irq_restore(flags);
-	tdone = rdtsc();
+	tdone = RDTSC();
 	
 	// save the timestamps
 	tinterrupt[0] = ts;
@@ -81,17 +88,17 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	}
 	
 	done = 0;
-	tinit = rdtsc();
+	tinit = RDTSC();
 
 	preempt_disable();
-	tpdis = rdtsc();
+	tpdis = RDTSC();
 	apic->send_IPI(cpu, POPCORN_KMSG_VECTOR);
-	tsent = rdtsc();
+	tsent = RDTSC();
 	preempt_enable();
-	tpen = rdtsc();
+	tpen = RDTSC();
 	
 	while ((done == 0) && (inc++ < MAX_LOOP) ) {};//busy waiting
-	tfinish = rdtsc();
+	tfinish = RDTSC();
 
 	if (ts) {
 		ts[0] = tinit;
