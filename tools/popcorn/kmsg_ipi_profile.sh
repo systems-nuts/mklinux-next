@@ -1,6 +1,8 @@
 #!/bin/bash
 
-REPS=5
+# Antonio Barbalace, Stevens 2019
+
+REPS=10
 
 # check requirements
 command -v lstopo >/dev/null 2>&1 || { echo >&2 "lstopo is required but it's not installed. Exiting."; exit 1; }

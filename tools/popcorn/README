@@ -1,0 +1,13 @@
+
+1. Load the kmsg_ipi_test module
+    $ sudo insmod ./kmsg_ipi_test.ko
+
+2. run the main script redirecting the output to kmsg_ipi_profile.dat
+    $ sudo ./kmsg_ipi_profile.sh > kmsg_ipi_profile.dat
+    
+3. scale the results redirecting the output to kmsg_ipi_prof.dat
+    $ cat kmsg_ipi_profile.dat | ./rearrange.sh > kmsg_ipi_prof.dat 
+    
+4. plot the results 
+    $ gnuplot kmsg_ipi_profile.plot
+    
