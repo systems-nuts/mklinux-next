@@ -21,7 +21,7 @@ LSTOPO=`./lstopo.py $TEMP_FILE | awk '{print $1}'`
 rm $TEMP_FILE
 
 # calibrate as well as parse dmesg
-DMESG_VALUE=`dmesg | awk '/^\[[0-9.]+\] kmsg_ipi_test cpu_khz [0-9]+ tsc_khz [0-9]+/{print $6}'`
+DMESG_VALUE=`dmesg | awk '/^\[[0-9.]+\] kmsg_ipi_test cpu_khz [0-9]+ tsc_khz [0-9]+/{print $6}' | tail -n 1`
 CAL_VALUE=`./calibrate | awk '/calibrate: [0-9.]+ tick\/second/{print $2}'`
 echo "TSC @ $DMESG_VALUE kHz (kernel) $CAL_VALUE tick/s (user)"
 #TODO select the best multiplier
