@@ -39,6 +39,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Antonio Barbalace");
 
 volatile int done; // this must be allocate on one or the other NUMA node
+volatile unsigned long inc;
 
 static int target_cpu;
 
@@ -48,7 +49,7 @@ static int target_cpu;
 static int test_numa_node=0;
 module_param(test_numa_node,int,0660);
 
-static unsigned long long tinterrupt[3];
+static unsigned long long tinterrupt[5];
 
 extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
 
@@ -59,16 +60,18 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 
 	//local_irq_save(flags);
 	//irq_enter();
-	done = 1;
-	//mb();
+	*(&done) = 1;
+	mb();
 	//irq_exit();
 	//local_irq_restore(flags);
 	tdone = RDTSC();
 	
 	// save the timestamps
+	tinterrupt[3] = *(&inc);
 	tinterrupt[0] = ts;
 	tinterrupt[1] = tenter;
 	tinterrupt[2] = tdone;
+	tinterrupt[4] = *(&inc);
 }
 
 #define MAX_LOOP 1999999999
@@ -80,14 +83,15 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 {
 	register unsigned long long tinit, tpdis, tsent, tpen, tfinish;
-	register unsigned long inc =0;
+	//register unsigned long
+	*(&inc)=0;
 
 	if (cpu_is_offline(cpu)) {
 		printk("%s: cpu %d is offline!\n", __func__, cpu);
 		return -1;
 	}
 	
-	done = 0;
+	*(&done) = 0;
 	tinit = RDTSC();
 
 	preempt_disable();
@@ -97,7 +101,7 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	preempt_enable();
 	tpen = RDTSC();
 	
-	while ((done == 0) && (inc++ < MAX_LOOP) ) {};//busy waiting
+	while ((*(&done) == 0) && ((*(&inc))++ < MAX_LOOP) ) {};//busy waiting
 	tfinish = RDTSC();
 
 	if (ts) {
@@ -186,14 +190,14 @@ static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, 
 #ifdef TIMESTAMPS
 		len += sprintf(buf + len,"sender %lld %lld %lld %lld %lld (%d)\n",
 						timestamps[0], timestamps[1], timestamps[2], timestamps[3], timestamps[4], ret);
-		len += sprintf(buf + len,"inthnd %lld %lld %lld\n",
-						tinterrupt[0], tinterrupt[1], tinterrupt[2]);
+		len += sprintf(buf + len,"inthnd %lld %lld %lld (%lld %lld)\n",
+						tinterrupt[0], tinterrupt[1], tinterrupt[2], tinterrupt[3], tinterrupt[4]);
 #else
                 len += sprintf(buf + len,"sender %lld %lld %lld %lld (%d)\n",
                                                 timestamps[1] - timestamps[0], timestamps[2] - timestamps[1],
 						timestamps[3] - timestamps[2], timestamps[4] - timestamps[3], ret);
-                len += sprintf(buf + len,"inthnd %lld %lld\n",
-                                                tinterrupt[1] - tinterrupt[0], tinterrupt[2] - tinterrupt[1]);
+                len += sprintf(buf + len,"inthnd %lld %lld (%lld %lld)\n",
+                                                tinterrupt[1] - tinterrupt[0], tinterrupt[2] - tinterrupt[1], tinterrupt[3], tinterrupt[4]);
 #endif
 	}
 
