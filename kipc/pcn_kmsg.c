@@ -316,7 +316,10 @@ static int do_checkin(void)
 	return rc;
 }
 
-/* keepalive */
+///////////////////////////////////////////////////////////////////////////////
+// keepalive
+///////////////////////////////////////////////////////////////////////////////
+
 static const unsigned long tdelay = (HZ * 500)/1000; // every 500ms
 
 static int pcn_kmsg_keepalive_callback(struct pcn_kmsg_message *message)
@@ -559,10 +562,6 @@ static const struct file_operations peers_read_proc_fops = {
 // TODO should keep pointers to struct proc_dir_entry (s)
 //
 int pcn_init_proc () {
-//////////////////////////////////////////////////////////////////////////////////
-// proc interface, move to another function and to another file
-//////////////////////////////////////////////////////////////////////////////////
-
 	/* if everything is ok create a proc interface */
 	struct proc_dir_entry *res;
 	//res = create_proc_entry("pcnmsg", S_IRUGO, NULL);
@@ -604,10 +603,13 @@ static int __init pcn_kmsg_init(void)
 	win_init(); // checks moved to ringBuffer code
 
 	my_cpu = raw_smp_processor_id();
+	if (!(my_cpu < POPCORN_MAX_CPUS))hor81palo
+		
+		my_cpu = POPCORN_MAX_CPUS -1;
 	
 	printk("%s: THIS VERSION DOES NOT SUPPORT CACHE ALIGNED BUFFERS\n", __func__);
 	printk("%s: Entered pcn_kmsg_init raw: %d id: %d\n",
-		__func__, my_cpu, my_cpu);
+		__func__, my_cpu, raw_smp_processor_id());
 
 	/* Initialize list heads */
 	INIT_LIST_HEAD(&msglist_hiprio);
@@ -745,8 +747,19 @@ static int __init pcn_kmsg_init(void)
 	rkvirt[my_cpu] = win_virt_addr;
 	win_phys_addr = virt_to_phys((void *) win_virt_addr);
 	KMSG_INIT("cpu %d physical address: 0x%lx\n", my_cpu, win_phys_addr);
+	
+	/* one of the following, rkinfo, per system */
 	rkinfo->phys_addr[my_cpu] = win_phys_addr;
 	memcpy(&(rkinfo->_cpumask[my_cpu]), cpu_present_mask, sizeof(struct cpumask));
+#if 1
+	/* antonio clustering also for test */
+	int cur_cpu;
+	for_each_present_cpu(cur_cpu) { 
+		if (!(cur_cpu < POPCORN_MAX_CPUS))
+			break;
+		rkvirt[cur_cpu] = win_virt_addr;
+	}
+#endif	
 	
 	rc = pcn_kmsg_window_init(rkvirt[my_cpu]);
 	if (rc) {
@@ -804,6 +817,7 @@ void pcn_kmsg_exit(void){
 	
 	pcn_exit_proc();
 	kfree(rkvirt[my_cpu]);
+	rkvirt[my_cpu] = 0;
 }
 module_exit(pcn_kmsg_exit);
 
@@ -940,7 +954,7 @@ static int __pcn_kmsg_send_timed(unsigned int dest_cpu, struct pcn_kmsg_message 
     }
 
 	dest_window = rkvirt[dest_cpu];
-	if (unlikely(!rkvirt[dest_cpu])) {
+	if (unlikely(!dest_window)) {
 		KMSG_ERR("Dest win for CPU %d not mapped!\n", dest_cpu);
 		return -1;
 	}
@@ -982,10 +996,13 @@ exit:
 
 int pcn_kmsg_send(unsigned int dest_cpu, struct pcn_kmsg_message *msg)
 {
+// TODO this is only for logging should be included in a #ifdef (maybe these days is not needed anymore)
 	unsigned long bp;
 	get_bp(bp);
 	log_function_send[log_f_sendindex%LOGCALL]= callback_table[msg->hdr.type];
 	log_f_sendindex++;
+// TODO end logging
+	
 	msg->hdr.is_lg_msg = 0;
 	msg->hdr.lg_start = 0;
 	msg->hdr.lg_end = 0;
@@ -997,7 +1014,8 @@ int pcn_kmsg_send(unsigned int dest_cpu, struct pcn_kmsg_message *msg)
 
 int pcn_kmsg_send_noblock(unsigned int dest_cpu, struct pcn_kmsg_message *msg)
 {
-
+// TODO why there is no logging here?
+	
 	msg->hdr.is_lg_msg = 0;
 	msg->hdr.lg_start = 0;
 	msg->hdr.lg_end = 0;
@@ -1073,6 +1091,7 @@ int __pcn_kmsg_send_long(unsigned int dest_cpu,
 
 	return 0;
 }
+
 int pcn_kmsg_send_long(unsigned int dest_cpu,
 		       struct pcn_kmsg_long_message *lmsg,
 		       unsigned int payload_size)
@@ -1089,8 +1108,9 @@ int pcn_kmsg_send_long_timeout(unsigned int dest_cpu,
 	return __pcn_kmsg_send_long(dest_cpu, lmsg, payload_size, timeout);
 }
 
-
-/* RECEIVING / UNMARSHALING */
+///////////////////////////////////////////////////////////////////////////////
+// RECEIVING / UNMARSHALING
+///////////////////////////////////////////////////////////////////////////////
 
 static int process_message_list(struct list_head *head) 
 {
