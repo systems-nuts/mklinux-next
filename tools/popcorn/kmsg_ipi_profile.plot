@@ -7,6 +7,9 @@ set xrange[0:143]
 set cbrange [-1:101]
 set cblabel "useconds"
 
+#set palette defined ( 0 "#000090", 1 "#000fff", 2 "#0090ff", 3 "#0fffee", 4 "#90ff70", 5 "#ffee00", 6 "#ff7000", 7 "#ee0000", 8 "#7f0000")
+
+
 set title "IPI latency between CPU-threads (usec)"
 
 set view map
