@@ -55,8 +55,8 @@ MODULE_LICENSE("GPL");
 
 extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
 
-struct pcn_kmsg_hdr log_receive[LOGLEN];
-struct pcn_kmsg_hdr log_send[LOGLEN];
+struct pcn_kmsg_hdr log_receive[LOGLEN]; // this is to be moved to ringBuffer, but not sure it is the right place
+struct pcn_kmsg_hdr log_send[LOGLEN]; // this is to be moved to ringBuffer
 int log_r_index=0;
 int log_s_index=0;
 
@@ -469,7 +469,7 @@ int keepalive_exit(void) {
 /*****************************************************************************/
 
 void log_init(void ) {
-	memset(log_receive,0,sizeof(struct pcn_kmsg_hdr)*LOGLEN);
+	memset(log_receive,0,sizeof(struct pcn_kmsg_hdr)*LOGLEN); // LOG????
 	memset(log_send,0,sizeof(struct pcn_kmsg_hdr)*LOGLEN);
 	memset(log_function_called,0,sizeof(void*)*LOGCALL);
 	memset(log_function_send,0,sizeof(void*)*LOGCALL);
@@ -693,8 +693,7 @@ static int __init pcn_kmsg_init(void)
 	if (rk) {
 		printk(KERN_ALERT"Failed to register initial kmsg keepalive callback!\n");
 	}
-#endif
-
+#endif /* POPCORN_KEEP_ALIVE */
 #ifdef PCN_SUPPORT_MULTICAST
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_MCAST, 
 					&pcn_kmsg_mcast_callback);
@@ -857,21 +856,39 @@ subsys_initcall(pcn_kmsg_init);
 static void wait_for_senders(void);
 
 // TODO divide between arch specific / transport specific etc.
-void pcn_kmsg_exit(void){
+void pcn_kmsg_exit(void)
+{
 #ifdef POPCORN_KEEP_ALIVE
 	keepalive_exit();
 #endif
-	
 	wait_for_senders();
 // TODO inhibit the possibility to send messages
+	rkinfo->active[my_cpu]= 0; // we are not active anymore
 	
+	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_CHECKIN);
+#ifdef POPCORN_KEEP_ALIVE	
+	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_KEEPALIVE);
+#endif /* POPCORN_KEEP_ALIVE */
+#ifdef PCN_SUPPORT_MULTICAST
+	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_MCAST);
+#endif /* PCN_SUPPORT_MULTICAST */ 	
+	
+	popcorn_kmsg_interrupt_handler = 0; // unregister interrupt handler
 	
 	destroy_workqueue(messaging_wq);
 	destroy_workqueue(kmsg_wq);
 	
 	pcn_exit_proc();
+	
 	kfree(rkvirt[my_cpu]);
 	rkvirt[my_cpu] = 0;
+	if (mklinux_boot)
+		kfree(rkinfo); 
+	else
+		iounmap(rkinfo); 
+	my_cpu = -1;
+	
+	printk("pcn_kmsg_exit: all resources released\n");
 }
 module_exit(pcn_kmsg_exit);
 
