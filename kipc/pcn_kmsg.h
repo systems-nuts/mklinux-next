@@ -231,7 +231,8 @@ struct pcn_kmsg_checkin_message {
 	unsigned char cpu_to_add;
 	struct cpumask _cpumask;
 #define CHECKIN_PADDING (sizeof(struct pcn_kmsg_hdr) + sizeof(unsigned long) + sizeof(unsigned char) + sizeof(struct cpumask))
-	char pad[(CACHE_LINE_SIZE - CHECKIN_PADDING)];
+#define THIS_PADDING ( (((((CHECKIN_PADDING)/CACHE_LINE_SIZE)+1)*CACHE_LINE_SIZE) - CHECKIN_PADDING) % CACHE_LINE_SIZE )
+	char pad[(THIS_PADDING)];
 }__attribute__((packed)) __attribute__((aligned(CACHE_LINE_SIZE)));
 
 struct pcn_kmsg_keepalive_message {
@@ -239,7 +240,8 @@ struct pcn_kmsg_keepalive_message {
 	unsigned long sequence_num;
 	unsigned char sender ;
 #define KEEPALIVE_PADDING (sizeof(struct pcn_kmsg_hdr) + sizeof(unsigned long) + sizeof(unsigned char))
-	char pad[(CACHE_LINE_SIZE - KEEPALIVE_PADDING)];
+#define THIS_PADDING ( (((((CHECKIN_PADDING)/CACHE_LINE_SIZE)+1)*CACHE_LINE_SIZE) - CHECKIN_PADDING) % CACHE_LINE_SIZE )
+        char pad[(THIS_PADDING)];
 }__attribute__((packed)) __attribute__((aligned(CACHE_LINE_SIZE)));
 
 

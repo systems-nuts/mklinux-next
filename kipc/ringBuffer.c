@@ -1,4 +1,16 @@
 
+#include <linux/irq.h>
+#include <linux/interrupt.h>
+#include <linux/smp.h>
+#include <linux/syscalls.h>
+#include <linux/kernel.h>
+#include <linux/list.h>
+#include <linux/slab.h>
+#include <linux/proc_fs.h>
+
+//for module compilationnn
+#include <linux/module.h>
+
 #include <asm/msr.h>
 #include <asm/apic.h>
 #include <asm/hardirq.h>
@@ -9,11 +21,12 @@
 
 #include <linux/delay.h>
 
+
 //#include <linux/pcn_kmsg.h
 #include "pcn_kmsg.h"
 
 #include "kmsg_core.h"
-#include "atomic_x86.h"
+//#include "atomic_x86.h"
 #include "ringBuffer.h"
 
 #ifndef native_read_tsc
