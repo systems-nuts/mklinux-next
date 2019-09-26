@@ -40,6 +40,8 @@
 #include "kmsg_core.h"
 #include "ringBuffer.h"
 
+MODULE_LICENSE("GPL");
+
 /*****************************************************************************/
 /* Logging Macros and variables */
 /*****************************************************************************/
@@ -260,7 +262,7 @@ static int pcn_kmsg_checkin_callback(struct pcn_kmsg_message *message)
 
 
 
-extern unsigned long orig_boot_params;
+//extern unsigned long orig_boot_params;
 
 static int send_checkin_msg(unsigned int cpu_to_add, unsigned int to_cpu)
 {
@@ -634,9 +636,12 @@ int pcn_init_proc (void) {
 int pcn_exit_proc(void) {
 	remove_proc_entry("pcnmsg", NULL);
 	remove_proc_entry("pcnpeers", NULL);
+	return 0;
 }
 
 void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts);
+
+int mklinux_boot = 0;
 
 /*****************************************************************************/
 /* init functions */
@@ -644,8 +649,8 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts);
 
 static int __init pcn_kmsg_init(void)
 {
-	int rc,rk, i;
-	unsigned long win_phys_addr, rkinfo_phys_addr;
+	int rc, i; //rk
+	unsigned long win_phys_addr, rkinfo_phys_addr = 0;
 	struct pcn_kmsg_window *win_virt_addr;
 	struct boot_params *boot_params_va;
 
@@ -682,11 +687,13 @@ static int __init pcn_kmsg_init(void)
 	if (rc) {
 		printk(KERN_ALERT"Failed to register initial kmsg checkin callback!\n");
 	}
+#ifdef POPCORN_KEEP_ALIVE
 	rk = pcn_kmsg_register_callback(PCN_KMSG_TYPE_KEEPALIVE,
 						&pcn_kmsg_keepalive_callback);
 	if (rk) {
 		printk(KERN_ALERT"Failed to register initial kmsg keepalive callback!\n");
 	}
+#endif
 
 #ifdef PCN_SUPPORT_MULTICAST
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_MCAST, 
@@ -743,13 +750,13 @@ static int __init pcn_kmsg_init(void)
 		   is. */
 		KMSG_INIT("Setting boot_params...\n");
 		boot_params_va = (struct boot_params *) 
-			(__START_KERNEL_map + orig_boot_params);
+			(__START_KERNEL_map ); //+ orig_boot_params);
 // TODO requires patching
 #if 0            
 		boot_params_va->pcn_kmsg_master_window = rkinfo_phys_addr;
 #endif
 		KMSG_INIT("boot_params virt %p phys 0x%lx\n",
-			boot_params_va, orig_boot_params);
+			boot_params_va, -1); //orig_boot_params);
 	}
 	else {
 // TODO requires patching        
@@ -1025,7 +1032,8 @@ static int __pcn_kmsg_send_timed(unsigned int dest_cpu, struct pcn_kmsg_message 
 	/* send IPI */
 	if (win_int_enabled(dest_window)) {
 		KMSG_PRINTK("Interrupts enabled; sending IPI...\n");
-		rdtscll(int_ts); // TODO refactor, somewhere else we are using native_read_tsc ...
+
+	int_ts = rdtsc(); // TODO refactor, somewhere else we are using native_read_tsc ...
 // TODO the following dpends on the kernel version        
 #if 1
         apic->send_IPI(dest_cpu, POPCORN_KMSG_VECTOR); //apic->send_IPI_single(dest_cpu, POPCORN_KMSG_VECTOR);
@@ -1045,7 +1053,8 @@ int pcn_kmsg_send(unsigned int dest_cpu, struct pcn_kmsg_message *msg)
 {
 // TODO this is only for logging should be included in a #ifdef (maybe these days is not needed anymore)
 	unsigned long bp;
-	get_bp(bp);
+	//get_bp(bp);
+	bp = (unsigned long)__builtin_return_address(0);
 	log_function_send[log_f_sendindex%LOGCALL]= callback_table[msg->hdr.type];
 	log_f_sendindex++;
 // TODO end logging
@@ -1226,7 +1235,7 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts) {
 	win_disable_int(rkvirt[my_cpu]);
 
 	//if (!isr_ts_2) {
-	rdtscll(isr_ts_2);
+	isr_ts_2 = rdtsc();
 	//}
 
 	/* schedule bottom half */
@@ -1497,7 +1506,7 @@ pull_msg:
 	//while ((work_done < PCN_KMSG_BUDGET) && (!win_get(rkvirt[my_cpu], &msg))) {
 	//while ( win_get(win, &msg) ) {
 	while ( (ret = win_get_common(win, &msg, forced, &timeout)) != -1 ) {
-		int _forced = forced;
+		//int _forced = forced;
 		KMSG_PRINTK("got a message!\n");
 
 		if ((forced = force_flush)) //update operation mode (it is async with this execution)
@@ -1569,7 +1578,7 @@ static void pcn_kmsg_action(struct work_struct* work)
 	int work_done = 0;
 
 	//if (!bh_ts) {
-		rdtscll(bh_ts);
+		bh_ts = rdtsc();
 	//}
 	KMSG_PRINTK("called\n");
 
@@ -1587,7 +1596,7 @@ static void pcn_kmsg_action(struct work_struct* work)
 #endif /* PCN_SUPPORT_MULTICAST */
 
 	//if (!bh_ts_2) {
-		rdtscll(bh_ts_2);
+		bh_ts_2 = rdtsc();
 	//}
 
 	/* Process high-priority queue first */

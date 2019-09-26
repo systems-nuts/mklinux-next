@@ -4,7 +4,9 @@
 
 CONFIG_POPCORN_KMSG=m
 
-obj-$(CONFIG_POPCORN_KMSG) += ringBuffer.o pcn_kmsg.o
+obj-$(CONFIG_POPCORN_KMSG) += kmsg.o
+kmsg-objs = ringBuffer.o pcn_kmsg.o
+
 #obj-$(CONFIG_POPCORN_KMSG) += pcn_ipi_test.o pcn_kmsg_test.o
 
 all:
