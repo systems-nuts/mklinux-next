@@ -317,6 +317,7 @@ static int do_checkin(void)
 	return rc;
 }
 
+#ifdef POPCORN_KEEP_ALIVE
 ///////////////////////////////////////////////////////////////////////////////
 // keepalive
 ///////////////////////////////////////////////////////////////////////////////
@@ -442,6 +443,7 @@ void keepalive_timer (unsigned long arg)
 		add_timer(&keepalive_tl);
 	}
 }
+#endif
 
 /*****************************************************************************/
 /* General interface and Internal dispatching */
