@@ -10,6 +10,8 @@
 
 int win_init (void);
 
+int pcn_kmsg_window_init(struct pcn_kmsg_window *window);
+
 int win_get(struct pcn_kmsg_window *win,
                           struct pcn_kmsg_reverse_message **msg);
 int win_get_common(struct pcn_kmsg_window *win,

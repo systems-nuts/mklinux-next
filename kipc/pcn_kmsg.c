@@ -51,6 +51,7 @@
 #define ROUND_PAGES(size) ((size/PAGE_SIZE) + ((size%PAGE_SIZE)? 1:0))
 #define ROUND_PAGE_SIZE(size) (ROUND_PAGES(size)*PAGE_SIZE)
 
+extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
 
 struct pcn_kmsg_hdr log_receive[LOGLEN];
 struct pcn_kmsg_hdr log_send[LOGLEN];
@@ -446,7 +447,7 @@ void keepalive_timer (unsigned long arg)
 /* General interface and Internal dispatching */
 /*****************************************************************************/
 
-log_init() {
+void log_init(void ) {
 	memset(log_receive,0,sizeof(struct pcn_kmsg_hdr)*LOGLEN);
 	memset(log_send,0,sizeof(struct pcn_kmsg_hdr)*LOGLEN);
 	memset(log_function_called,0,sizeof(void*)*LOGCALL);
@@ -456,12 +457,20 @@ log_init() {
 volatile static int force_flush =0;
 volatile static int force_waiters =0;
 int max_msg_put = 0;
-static int pcn_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
+//static int pcn_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
+static ssize_t pcn_read_proc(struct file *file, char __user *ubuf, size_t count, loff_t *ppos)
 {
-	char *p= page;
+    char *p= kmalloc(count, GFP_KERNEL), *end = 0;
     int len, i, idx;
 
-    p += sprintf(p, "force_flush: %d %d\n", force_flush, force_waiters);
+    // to simplify life TODO TODO TODO
+    if (*ppos > 0)
+	return 0;
+
+    end = p + count;
+    p += snprintf(p, (size_t)(end -p), "force_flush: %d %d\n", force_flush, force_waiters);
+
+// TODO put snprintf everywhere
 
     p += sprintf(p, "Sleep win_put[total,count,avg]=[%llx,%x,%llx]\n",
                     total_sleep_win_put,
@@ -504,20 +513,33 @@ static int pcn_read_proc(char *page, char **start, off_t off, int count, int *eo
     	p +=sprintf (p,"sb[%i]=%i\n",i,rkvirt[my_cpu]->second_buffer[i]);
     }
 
+//proc/file specific handling
+    len = (p - (end -count));
+    if ( copy_to_user(ubuf, (end -count), len) )
+	return -EFAULT;
+    kfree ((end -count));
 
-	len = (p -page) - off;
+/*	len = (p -page) - off;
 	if (len < 0)
 		len = 0;
 	*eof = (len <= count) ? 1 : 0;
-	*start = page + off;
+	*start = page + off; */
+	*ppos = len;
 	return len;
 }
 
-static int peers_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
+//static int peers_read_proc(char *page, char **start, off_t off, int count, int *eof, void *data)
+static ssize_t peers_read_proc(struct file *file, char __user *ubuf, size_t count, loff_t *ppos)
 {
-	char *p= page;
+	char *p= kmalloc(count, GFP_KERNEL), *end = 0;
     int len, i;
     char sbuffer[32];
+
+    // to simplify life TODO TODO TODO
+    if (*ppos > 0)
+        return 0;
+
+    end = p + count; // TODO TODO TODO check that we are not going out of the buffer (snprintf)
 
     // NOTE here we want to list which are the other kernels, then if the upper layers want to know
     // more about the other kernels they should send further messages?! like kinit from Akshay/Antonio?!
@@ -543,25 +565,34 @@ static int peers_read_proc(char *page, char **start, off_t off, int count, int *
 					(i == my_cpu) ? "THIS_CPU" : "" );
     }
 
-	len = (p -page) - off;
+//proc/file specific handling
+	len = (p - (end -count));
+	if ( copy_to_user(ubuf, (end -count), len) )
+        	return -EFAULT;
+	kfree ((end -count));
+
+/*	len = (p -page) - off;
 	if (len < 0)
 		len = 0;
 	*eof = (len <= count) ? 1 : 0;
-	*start = page + off;
+	*start = page + off; */
+	*ppos = len;
 	return len;
 }
 
 static const struct file_operations pcn_read_proc_fops = {
+	.owner = THIS_MODULE,
 	.read		= pcn_read_proc,
 };
 
 static const struct file_operations peers_read_proc_fops = {
+        .owner = THIS_MODULE,
 	.read		= peers_read_proc,
 };
 
 // TODO should keep pointers to struct proc_dir_entry (s)
 //
-int pcn_init_proc () {
+int pcn_init_proc (void) {
 	/* if everything is ok create a proc interface */
 	struct proc_dir_entry *res;
 	//res = create_proc_entry("pcnmsg", S_IRUGO, NULL);
@@ -582,12 +613,12 @@ int pcn_init_proc () {
 	return 0;
 }
 
-int pcn_exit_proc() {
+int pcn_exit_proc(void) {
 	remove_proc_entry("pcnmsg", NULL);
 	remove_proc_entry("pcnpeers", NULL);
 }
 
-
+void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts);
 
 /*****************************************************************************/
 /* init functions */
@@ -603,8 +634,7 @@ static int __init pcn_kmsg_init(void)
 	win_init(); // checks moved to ringBuffer code
 
 	my_cpu = raw_smp_processor_id();
-	if (!(my_cpu < POPCORN_MAX_CPUS))hor81palo
-		
+	if (!(my_cpu < POPCORN_MAX_CPUS))		
 		my_cpu = POPCORN_MAX_CPUS -1;
 	
 	printk("%s: THIS VERSION DOES NOT SUPPORT CACHE ALIGNED BUFFERS\n", __func__);

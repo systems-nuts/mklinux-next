@@ -26,7 +26,7 @@
 #include "pcn_kmsg.h"
 
 #include "kmsg_core.h"
-//#include "atomic_x86.h"
+#include "atomic_x86.h"
 #include "ringBuffer.h"
 
 #ifndef native_read_tsc
@@ -263,7 +263,7 @@ int win_init (void)
 }
 
 // move in ringbuffer TODO TODO TODO
-static inline int pcn_kmsg_window_init(struct pcn_kmsg_window *window)
+int pcn_kmsg_window_init(struct pcn_kmsg_window *window)
 {
 	int i;
 
