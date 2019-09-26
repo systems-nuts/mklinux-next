@@ -443,7 +443,7 @@ void keepalive_timer (unsigned long arg)
 		add_timer(&keepalive_tl);
 	}
 }
-#endif
+#endif /* POPCORN_KEEP_ALIVE */
 
 /*****************************************************************************/
 /* General interface and Internal dispatching */
