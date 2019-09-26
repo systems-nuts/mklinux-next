@@ -114,7 +114,9 @@ static void pcn_kmsg_action(/*struct softirq_action *h*/struct work_struct* work
 struct workqueue_struct *kmsg_wq;
 struct workqueue_struct *messaging_wq;
 
+#ifdef POPCORN_KEEP_ALIVE
 struct timer_list keepalive_tl;
+#endif /* POPCORN_KEEP_ALIVE */
 
 /*****************************************************************************/
 /* WINDOWS/BUFFERING */
@@ -443,6 +445,21 @@ void keepalive_timer (unsigned long arg)
 		add_timer(&keepalive_tl);
 	}
 }
+
+void keepalive_init(void ) {    
+	//crash_wq= create_singlethread_workqueue("crash_wq");
+	/* start timer for keepalive functionality */
+        init_timer(&keepalive_tl);
+        keepalive_tl.data = (unsigned long ) 0;
+        keepalive_tl.function = keepalive_timer;
+        keepalive_tl.expires = jiffies + (tdelay*100); // TODO tdelay should be in jiffies
+        //add_timer(&(keepalive_tl)); // TODO here the timer is not enabled!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+}
+
+int keepalive_exit(void) {
+	return del_timer_sync(&keepalive_tl);
+}
+
 #endif /* POPCORN_KEEP_ALIVE */
 
 /*****************************************************************************/
@@ -520,7 +537,6 @@ static ssize_t pcn_read_proc(struct file *file, char __user *ubuf, size_t count,
     if ( copy_to_user(ubuf, (end -count), len) )
 	return -EFAULT;
     kfree ((end -count));
-
 /*	len = (p -page) - off;
 	if (len < 0)
 		len = 0;
@@ -815,14 +831,9 @@ static int __init pcn_kmsg_init(void)
 ///////////////////////////////////////////////////////////////////////////////
 
 	pcn_init_proc(); // check return value
-    
-	//crash_wq= create_singlethread_workqueue("crash_wq");
-	/* start timer for keepalive functionality */
-        init_timer(&keepalive_tl);
-        keepalive_tl.data = (unsigned long ) 0;
-        keepalive_tl.function = keepalive_timer;
-        keepalive_tl.expires = jiffies + (tdelay*100); // TODO tdelay should be in jiffies
-        //add_timer(&(keepalive_tl));
+#ifdef POPCORN_KEEP_ALIVE
+	keepalive_init();
+#endif
 
 	return 0;
 }
@@ -840,9 +851,13 @@ static void wait_for_senders(void);
 
 // TODO divide between arch specific / transport specific etc.
 void pcn_kmsg_exit(void){
-	del_timer_sync(&keepalive_tl);
+#ifdef POPCORN_KEEP_ALIVE
+	keepalive_exit();
+#endif
+	
 	wait_for_senders();
 // TODO inhibit the possibility to send messages
+	
 	
 	destroy_workqueue(messaging_wq);
 	destroy_workqueue(kmsg_wq);
