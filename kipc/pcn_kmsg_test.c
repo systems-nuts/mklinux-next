@@ -16,6 +16,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/version.h>
+#include <linux/slab.h>
 
 #ifdef PCN_TEST_SYSCALL
 #include <linux/syscalls.h>
@@ -25,7 +26,7 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/errno.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 #include <linux/ioctl.h>
 #endif
@@ -71,9 +72,9 @@ static int pcn_kmsg_test_send_single(struct pcn_kmsg_test_args *args)
 	msg.src_cpu = raw_smp_processor_id();
 	msg.dest_cpu = args->cpu;
 
-	rdtsc(ts_start);
+	ts_start = rdtsc();
 	pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
-	rdtsc(ts_end);
+	ts_end = rdtsc();
 
 	args->send_ts = ts_end - ts_start;
 
@@ -96,9 +97,9 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	
 	kmsg_done = 0;
 
-	rdtsc(tsc_start);
+	tsc_start = rdtsc();
 	pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
-	rdtsc(tsc_end);
+	tsc_end = rdtsc();
 	
 	while (!kmsg_done) {} // TODO may require refactoring
 
@@ -131,7 +132,7 @@ static int pcn_kmsg_test_send_batch(struct pcn_kmsg_test_args __user *args)
 	msg.op = PCN_KMSG_TEST_SEND_BATCH;
 	msg.batch_size = args->batch_size;
 
-	rdtsc(batch_send_start_tsc);
+	batch_send_start_tsc = rdtsc();
 
 	kmsg_done = 0;
 
@@ -151,7 +152,7 @@ static int pcn_kmsg_test_send_batch(struct pcn_kmsg_test_args __user *args)
 		}
 	}
 
-	rdtsc(batch_send_end_tsc);
+	batch_send_end_tsc = rdtsc();
 
 	/* wait for reply to last message */
 
@@ -185,11 +186,11 @@ static int pcn_kmsg_test_long_msg(struct pcn_kmsg_test_args __user *args)
 	TEST_PRINTK("syscall to test kernel messaging, to CPU %d\n", 
 		    args->cpu);
 
-	rdtsc(start_ts);
+	start_ts = rdtsc();
 
 	rc = pcn_kmsg_send_long(args->cpu, &lmsg, strlen(str) + 5);
 
-	rdtsc(end_ts);
+	end_ts = rdtsc();
 
 	args->send_ts = end_ts - start_ts;
 
@@ -230,12 +231,12 @@ static int pcn_kmsg_test_mcast_send(struct pcn_kmsg_test_args __user *args)
 	msg.hdr.prio = PCN_KMSG_PRIO_HIGH;
 	msg.op = PCN_KMSG_TEST_SEND_SINGLE;
 
-	rdtsc(ts_start);
+	ts_start = rdtsc();
 
 	rc = pcn_kmsg_mcast_send(args->mcast_id,
 				 (struct pcn_kmsg_message *) &msg);
 
-	rdtsc(ts_end);
+	ts_end = rdtsc();
 
 	if (rc) {
 		TEST_ERR("failed to send mcast message to group %lu!\n",
@@ -285,7 +286,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 	int rc = 0;
 	unsigned long handler_ts;
 
-	rdtsc(handler_ts);
+	handler_ts = rdtsc();
 
 	TEST_PRINTK("Received single test message from CPU %d! (current CPU %d) [from:%d, to:%d]\n",
 		    msg->hdr.from_cpu, raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
@@ -321,7 +322,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 					 raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
 			
 		TEST_PRINTK("Received ping-pong; reading end timestamp...\n");
-		rdtsc(kmsg_tsc);
+		kmsg_tsc = rdtsc();
 		ts1 = msg->ts1;
 		ts2 = msg->ts2;
 		ts3 = msg->ts3;
@@ -345,7 +346,7 @@ static int handle_batch_msg(struct pcn_kmsg_test_message *msg)
 
 	if (msg->batch_seqnum == 0) {
 		TEST_PRINTK("Start of batch; taking initial timestamp!\n");
-		rdtsc(batch_start_tsc);
+		batch_start_tsc = rdtsc();
 
 	}
 	
@@ -355,7 +356,7 @@ static int handle_batch_msg(struct pcn_kmsg_test_message *msg)
 		unsigned long batch_end_tsc;
 
 		TEST_PRINTK("End of batch; sending back reply!\n");
-		rdtsc(batch_end_tsc);
+		batch_end_tsc = rdtsc();
 
 		reply_msg.hdr.type = PCN_KMSG_TYPE_TEST;
 		reply_msg.hdr.prio = PCN_KMSG_PRIO_HIGH;
@@ -380,7 +381,7 @@ static int handle_batch_result_msg(struct pcn_kmsg_test_message *msg)
 {
 	int rc = 0;
 
-	rdtsc(kmsg_tsc);
+	kmsg_tsc = rdtsc();
 
 	ts1 = msg->ts1;
 	ts2 = msg->ts2;
