@@ -660,7 +660,6 @@ static int __init pcn_kmsg_init(void)
 	if (!(my_cpu < POPCORN_MAX_CPUS))		
 		my_cpu = POPCORN_MAX_CPUS -1;
 	
-	printk("%s: THIS VERSION DOES NOT SUPPORT CACHE ALIGNED BUFFERS\n", __func__);
 	printk("%s: Entered pcn_kmsg_init raw: %d id: %d\n",
 		__func__, my_cpu, raw_smp_processor_id());
 

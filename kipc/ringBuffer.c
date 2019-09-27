@@ -242,24 +242,26 @@ int win_init (void)
 			__func__, (unsigned long) __PCN_KMSG_TYPE_MAX);
 		bug++;
 	}
+// TODO I have no idea of what the following does mean to be, seems like a magic formula
 	if ( (((sizeof(struct pcn_kmsg_hdr)*8) - 24 - sizeof(unsigned long) - __READY_SIZE) != LG_SEQNUM_SIZE) ) {
 		printk(KERN_ALERT"%s: LG_SEQNUM_SIZE=%ld is not correctly sized, should be %ld.\n",
 			__func__, (unsigned long) LG_SEQNUM_SIZE,
 			(unsigned long)((sizeof(struct pcn_kmsg_hdr)*8) - 24 - sizeof(unsigned long) - __READY_SIZE));
 		bug++;
 	}
+	
 	if ( (sizeof(struct pcn_kmsg_message) % CACHE_LINE_SIZE != 0) ) {
 		printk(KERN_ALERT"%s: sizeof(struct pcn_kmsg_message)=%ld is not a multiple of cacheline size.\n",
 			__func__, (unsigned long)sizeof(struct pcn_kmsg_message));
 		bug++;
 	}
-        if ( (sizeof(struct pcn_kmsg_reverse_message) % CACHE_LINE_SIZE != 0) ) {
-                printk(KERN_ALERT"%s: sizeof(struct pcn_kmsg_reverse_message)=%ld is not a multiple of cacheline size.\n",
-                        __func__, (unsigned long)sizeof(struct pcn_kmsg_reverse_message));
-                bug++;
-        }
+	if ( (sizeof(struct pcn_kmsg_reverse_message) % CACHE_LINE_SIZE != 0) ) {
+		printk(KERN_ALERT"%s: sizeof(struct pcn_kmsg_reverse_message)=%ld is not a multiple of cacheline size.\n",
+			__func__, (unsigned long)sizeof(struct pcn_kmsg_reverse_message));
+		bug++;
+	}
 	BUG_ON((bug>1));
-	return 0;
+	return bug;
 }
 
 // move in ringbuffer TODO TODO TODO
