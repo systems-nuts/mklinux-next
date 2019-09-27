@@ -53,8 +53,6 @@ unsigned long ts1, ts2, ts3, ts4, ts5;
 
 volatile int kmsg_done;
 
-extern int my_cpu;
-
 extern volatile unsigned long isr_ts, isr_ts_2, bh_ts, bh_ts_2;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,11 +68,11 @@ static int pcn_kmsg_test_send_single(struct pcn_kmsg_test_args *args)
 	msg.hdr.type = PCN_KMSG_TYPE_TEST;
 	msg.hdr.prio = PCN_KMSG_PRIO_HIGH;
 	msg.op = PCN_KMSG_TEST_SEND_SINGLE;
+	msg.src_cpu = raw_smp_processor_id();
+	msg.dest_cpu = args->cpu;
 
 	rdtsc(ts_start);
-
 	pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
-
 	rdtsc(ts_end);
 
 	args->send_ts = ts_end - ts_start;
@@ -88,21 +86,26 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 {
 	int rc = 0;
 	struct pcn_kmsg_test_message msg;
-	unsigned long tsc_init;
+	unsigned long ts_start, ts_end;
 
 	msg.hdr.type = PCN_KMSG_TYPE_TEST;
 	msg.hdr.prio = PCN_KMSG_PRIO_HIGH;
 	msg.op = PCN_KMSG_TEST_SEND_PINGPONG;
-
+	msg.src_cpu = raw_smp_processor_id();
+	msg.dest_cpu = args->cpu;
+	
 	kmsg_done = 0;
 
-	rdtsc(tsc_init);
+	rdtsc(tsc_start);
 	pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
-	while (!kmsg_done) {}
+	rdtsc(tsc_end);
+	
+	while (!kmsg_done) {} // TODO may require refactoring
 
-	TEST_PRINTK("Elapsed time (ticks): %lu\n", kmsg_tsc - tsc_init);
+// TODO some more refactoring is needed
+	TEST_PRINTK("Elapsed time (ticks): %lu\n", kmsg_tsc - tsc_start);
 
-	args->send_ts = tsc_init;
+	args->send_ts = tsc_start;
 	args->ts0 = int_ts;
 	args->ts1 = ts1;
 	args->ts2 = ts2;
@@ -268,8 +271,12 @@ static int pcn_kmsg_test_mcast_close(struct pcn_kmsg_test_args __user *args)
 
 static int handle_single_msg(struct pcn_kmsg_test_message *msg)
 {
-	TEST_PRINTK("Received single test message from CPU %d!\n",
-		    msg->hdr.from_cpu);
+	TEST_PRINTK("Received single test message from CPU %d! (current CPU %d) [from:%d, to:%d]\n",
+		    msg->hdr.from_cpu, raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
+	
+	//nothing todo
+	// TODO add another one for the case of shared memory multikernel where we do the trick of Barrelfish
+	
 	return 0;
 }
 
@@ -280,7 +287,11 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 
 	rdtsc(handler_ts);
 
-	if (my_cpu) {
+	TEST_PRINTK("Received single test message from CPU %d! (current CPU %d) [from:%d, to:%d]\n",
+		    msg->hdr.from_cpu, raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
+	
+	// this CPU is the designated receiver
+	if (raw_smp_processor_id() == msg->dest_cpu) {
 
 		struct pcn_kmsg_test_message reply_msg;
 
@@ -294,7 +305,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 		reply_msg.ts5 = handler_ts;
 
 		TEST_PRINTK("Sending message back to CPU 0...\n");
-		rc = pcn_kmsg_send(0, (struct pcn_kmsg_message *) &reply_msg);
+		rc = pcn_kmsg_send(msg->src_cpu, (struct pcn_kmsg_message *) &reply_msg);
 
 		if (rc) {
 			TEST_ERR("Message send failed!\n");
@@ -302,7 +313,13 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 		}
 
 		isr_ts = isr_ts_2 = bh_ts = bh_ts_2 = 0;
-	} else {
+	} 
+	// this CPU should be the sender
+	else {
+		if (raw_smp_processor_id() != msg->src_cpu)
+			TEST_ERR("WARNING not the sender of this ping pong message (current CPU %d) [from:%d, to:%d]\n",
+					 raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
+			
 		TEST_PRINTK("Received ping-pong; reading end timestamp...\n");
 		rdtsc(kmsg_tsc);
 		ts1 = msg->ts1;
@@ -318,6 +335,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 
 unsigned long batch_start_tsc;
 
+// TODO TODO TODO TODO TODO
 static int handle_batch_msg(struct pcn_kmsg_test_message *msg)
 {
 	int rc = 0;
@@ -431,13 +449,13 @@ static int pcn_kmsg_register_handlers()
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST,
 					&pcn_kmsg_test_callback);
 	if (rc) {
-		TEST_ERR("Failed to register initial kmsg test callback!\n");
+		TEST_ERR("Failed to register initial kmsg test callback! (%d) \n", %d);
 	}
 
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST_LONG,
 					&pcn_kmsg_test_long_callback);
 	if (rc) {
-		TEST_ERR("Failed to register initial kmsg_test_long callback!\n");
+		TEST_ERR("Failed to register initial kmsg_test_long callback! (%d)\n" %d);
 	}
 	
 	return rc;
@@ -502,15 +520,6 @@ SYSCALL_DEFINE2(popcorn_test_kmsg, enum pcn_kmsg_test_op, op,
 ///////////////////////////////////////////////////////////////////////////////
 // dev driver interface
 ///////////////////////////////////////////////////////////////////////////////
- 
-typedef struct
-{
-    int status, dignity, ego;
-} query_arg_t;
- 
-#define QUERY_GET_VARIABLES _IOR('q', 1, query_arg_t *)
-#define QUERY_CLR_VARIABLES _IO('q', 2)
-#define QUERY_SET_VARIABLES _IOW('q', 3, query_arg_t *)
 
 #define FIRST_MINOR 0
 #define MINOR_CNT 1
@@ -669,18 +678,9 @@ static int __init pcn_kmsg_test_init(void)
 		return rc;
 	}
 #endif 
-	
-	TEST_PRINTK("Registering test callbacks!\n");
 
-	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST,
-					&pcn_kmsg_test_callback);
-	if (rc) 
-		TEST_ERR("Failed to register initial kmsg test callback!\n");
-
-	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST_LONG,
-					&pcn_kmsg_test_long_callback);
-	if (rc)
-		TEST_ERR("Failed to register initial kmsg_test_long callback!\n");
+	// it registers to the messaging layer
+	rc = pcn_kmsg_register_handlers()
 
 	return rc;
 }

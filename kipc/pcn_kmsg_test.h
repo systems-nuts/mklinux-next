@@ -3,6 +3,7 @@
 /*
  * Header file for Popcorn inter-kernel messaging layer
  *
+ * Rewritten by Antonio Barbalace, Stevens 2019
  * (C) Ben Shelton <beshelto@vt.edu> 2013
  */
 
@@ -27,7 +28,7 @@ struct pcn_kmsg_test_args {
 	unsigned long batch_size;
 	pcn_kmsg_mcast_id mcast_id;
 	unsigned long send_ts;
-	unsigned long ts0;
+	unsigned long ts0; // TODO why not putting an array?!
 	unsigned long ts1;
 	unsigned long ts2;
 	unsigned long ts3;
@@ -41,6 +42,7 @@ struct pcn_kmsg_test_args {
 struct pcn_kmsg_test_message {
 	struct pcn_kmsg_hdr hdr;
 	enum pcn_kmsg_test_op op;
+	int src_cpu, dest_cpu; // needed to support clustering
 	unsigned long batch_seqnum;
 	unsigned long batch_size;
 	unsigned long ts1, ts2, ts3, ts4, ts5;
