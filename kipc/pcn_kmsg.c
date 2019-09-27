@@ -1009,7 +1009,9 @@ again:
 
 /* SENDING / MARSHALING */
 
+//TODO refactoring
 unsigned long int_ts;
+EXPORT_SYMBOL(int_ts);
 
 // TODO move to ringBuffer.c
 static int __pcn_kmsg_send_timed(unsigned int dest_cpu, struct pcn_kmsg_message *msg,
