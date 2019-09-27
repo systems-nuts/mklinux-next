@@ -212,10 +212,12 @@ static void process_kmsg_wq_item(struct work_struct * work)
 	kfree(work);
 }
 
-inline void pcn_kmsg_free_msg(void * msg)
+//TODO maybe move in an include? do we want to show the internals?
+void pcn_kmsg_free_msg(void * msg)
 {
 	kfree(msg - sizeof(struct list_head));
 }
+EXPORT_SYMBOL(pcn_kmsg_free_msg);
 
 static int pcn_kmsg_checkin_callback(struct pcn_kmsg_message *message) 
 {
@@ -906,6 +908,7 @@ int pcn_kmsg_register_callback(enum pcn_kmsg_type type, pcn_kmsg_cbftn callback)
 
 	return 0;
 }
+EXPORT_SYMBOL(pcn_kmsg_register_callback);
 
 /* Unregister a callback function when a kernel module is unloaded */
 int pcn_kmsg_unregister_callback(enum pcn_kmsg_type type)
@@ -920,6 +923,7 @@ int pcn_kmsg_unregister_callback(enum pcn_kmsg_type type)
 
 	return 0;
 }
+EXPORT_SYMBOL(pcn_kmsg_unregister_callback);
 
 /*****************************************************************************/
 /* blocking functions */
@@ -1083,7 +1087,9 @@ int pcn_kmsg_send(unsigned int dest_cpu, struct pcn_kmsg_message *msg)
 
 	return __pcn_kmsg_send_timed(dest_cpu, msg, 0, 0);
 }
+EXPORT_SYMBOL(pcn_kmsg_send);
 
+// TODO no block should be a parameter
 int pcn_kmsg_send_noblock(unsigned int dest_cpu, struct pcn_kmsg_message *msg)
 {
 // TODO why there is no logging here?
@@ -1170,6 +1176,8 @@ int pcn_kmsg_send_long(unsigned int dest_cpu,
 {
 	return __pcn_kmsg_send_long(dest_cpu, lmsg, payload_size, 0);
 }
+EXPORT_SYMBOL(pcn_kmsg_send_long);
+
 /*
  * RETURNs -ETIMEDOUT if timeout expires and in timeout the still available time (negative if is past the deadline)
  */
@@ -1223,7 +1231,10 @@ static int process_message_list(struct list_head *head)
 //void pcn_kmsg_do_tasklet(unsigned long);
 //DECLARE_TASKLET(pcn_kmsg_tasklet, pcn_kmsg_do_tasklet, 0);
 
+// TODO this is pretty bad need to refactor, also it doesn't support concurrency ...
 unsigned volatile long isr_ts = 0, isr_ts_2 = 0;
+EXPORT_SYMBOL(isr_ts);
+EXPORT_SYMBOL(isr_ts_2);
 
 /* top half */
 #if 0
@@ -1584,7 +1595,10 @@ pull_msg:
 	return work_done;
 }
 
+// TODO need refactoring
 unsigned volatile long bh_ts = 0, bh_ts_2 = 0;
+EXPORT_SYMBOL(bh_ts);
+EXPORT_SYMBOL(bh_ts_2);
 
 // NOTE the following was declared as a bottom half
 //static void pcn_kmsg_action(struct softirq_action *h)
