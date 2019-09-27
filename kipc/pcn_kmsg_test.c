@@ -39,7 +39,7 @@
 // macros
 ///////////////////////////////////////////////////////////////////////////////
 
-#define KMSG_TEST_VERBOSE 0
+#define KMSG_TEST_VERBOSE 1
 
 #if KMSG_TEST_VERBOSE
 #define TEST_PRINTK(fmt, args...) printk("%s: " fmt, __func__, ##args)
@@ -173,23 +173,27 @@ static int pcn_kmsg_test_long_msg(struct pcn_kmsg_test_args __user *args)
 {
 	int rc;
 	unsigned long start_ts, end_ts;
-	struct pcn_kmsg_long_message lmsg;
+	struct pcn_kmsg_long_message * lmsg;
 	char *str = "This is a very long test message.  Don't be surprised if it gets corrupted; it probably will.  If it does, you're in for a lot more work, and may not get home to see your wife this weekend.  You should knock on wood before running this test.";
 
-	lmsg.hdr.type = PCN_KMSG_TYPE_TEST_LONG;
-	lmsg.hdr.prio = PCN_KMSG_PRIO_NORMAL;
+	lmsg = kmalloc(sizeof(struct pcn_kmsg_long_message), GFP_KERNEL);
+	if (!lmsg) {
+		TEST_ERR("cannot malloc\n");
+		return -ENOMEM;
+	}
+		
+	lmsg->hdr.type = PCN_KMSG_TYPE_TEST_LONG;
+	lmsg->hdr.prio = PCN_KMSG_PRIO_NORMAL;
 
-	strcpy((char *) &lmsg.payload, str);
+	strcpy((char *) &(lmsg->payload), str);
 
-	TEST_PRINTK("Message to send: %s\n", (char *) &lmsg.payload);
+	TEST_PRINTK("Message to send: %s\n", (char *) &(lmsg->payload));
 
 	TEST_PRINTK("syscall to test kernel messaging, to CPU %d\n", 
 		    args->cpu);
 
 	start_ts = rdtsc();
-
-	rc = pcn_kmsg_send_long(args->cpu, &lmsg, strlen(str) + 5);
-
+	rc = pcn_kmsg_send_long(args->cpu, lmsg, strlen(str) + 5);
 	end_ts = rdtsc();
 
 	args->send_ts = end_ts - start_ts;
@@ -273,7 +277,7 @@ static int pcn_kmsg_test_mcast_close(struct pcn_kmsg_test_args __user *args)
 static int handle_single_msg(struct pcn_kmsg_test_message *msg)
 {
 	TEST_PRINTK("Received single test message from CPU %d! (current CPU %d) [from:%d, to:%d]\n",
-		    msg->hdr.from_cpu, raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
+		    msg->hdr.from_cpu, raw_smp_processor_id(), msg->src_cpu, msg->dest_cpu);
 	
 	//nothing todo
 	// TODO add another one for the case of shared memory multikernel where we do the trick of Barrelfish
@@ -289,7 +293,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 	handler_ts = rdtsc();
 
 	TEST_PRINTK("Received single test message from CPU %d! (current CPU %d) [from:%d, to:%d]\n",
-		    msg->hdr.from_cpu, raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
+		    msg->hdr.from_cpu, raw_smp_processor_id(), msg->src_cpu, msg->dest_cpu);
 	
 	// this CPU is the designated receiver
 	if (raw_smp_processor_id() == msg->dest_cpu) {
