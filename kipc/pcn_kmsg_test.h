@@ -7,8 +7,8 @@
  * (C) Ben Shelton <beshelto@vt.edu> 2013
  */
 
-#include <linux/list.h>
-#include <linux/multikernel.h>
+//#include <linux/list.h>
+//#include <multikernel.h>
 
 /* INFRASTRUCTURE */
 enum pcn_kmsg_test_op {
