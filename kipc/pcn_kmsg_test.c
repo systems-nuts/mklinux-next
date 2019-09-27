@@ -97,16 +97,16 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	
 	kmsg_done = 0;
 
-	tsc_start = rdtsc();
+	ts_start = rdtsc();
 	pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
-	tsc_end = rdtsc();
+	ts_end = rdtsc();
 	
 	while (!kmsg_done) {} // TODO may require refactoring
 
 // TODO some more refactoring is needed
-	TEST_PRINTK("Elapsed time (ticks): %lu\n", kmsg_tsc - tsc_start);
+	TEST_PRINTK("Elapsed time (ticks): %lu\n", kmsg_tsc - ts_start);
 
-	args->send_ts = tsc_start;
+	args->send_ts = ts_start;
 	args->ts0 = int_ts;
 	args->ts1 = ts1;
 	args->ts2 = ts2;
@@ -319,7 +319,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 	else {
 		if (raw_smp_processor_id() != msg->src_cpu)
 			TEST_ERR("WARNING not the sender of this ping pong message (current CPU %d) [from:%d, to:%d]\n",
-					 raw_smp_processor_id() msg->src_cpu, msg->dest_cpu);
+					 raw_smp_processor_id(), msg->src_cpu, msg->dest_cpu);
 			
 		TEST_PRINTK("Received ping-pong; reading end timestamp...\n");
 		kmsg_tsc = rdtsc();
@@ -441,7 +441,7 @@ static int pcn_kmsg_test_long_callback(struct pcn_kmsg_message *message)
 	return 0;
 }
 
-static int pcn_kmsg_register_handlers()
+static int pcn_kmsg_register_handlers(void)
 {
 	int rc;
 
@@ -450,13 +450,13 @@ static int pcn_kmsg_register_handlers()
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST,
 					&pcn_kmsg_test_callback);
 	if (rc) {
-		TEST_ERR("Failed to register initial kmsg test callback! (%d) \n", %d);
+		TEST_ERR("Failed to register initial kmsg test callback! (%d) \n", rc);
 	}
 
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST_LONG,
 					&pcn_kmsg_test_long_callback);
 	if (rc) {
-		TEST_ERR("Failed to register initial kmsg_test_long callback! (%d)\n" %d);
+		TEST_ERR("Failed to register initial kmsg_test_long callback! (%d)\n", rc);
 	}
 	
 	return rc;
@@ -550,7 +550,7 @@ static long pcn_kmsg_test_ioctl(struct file *f, unsigned int cmd, unsigned long 
 	
 	rc = copy_from_user(args, (struct pcn_kmsg_test_args *) user_data, sizeof(struct pcn_kmsg_test_args));
 	if (rc != 0) {
-		TEST_ERR("%s some data cannot be copied from user %d\n", rc);
+		TEST_ERR("some data cannot be copied from user %d\n", rc);
 		return -ENODEV;
 	}
 	 
@@ -586,7 +586,7 @@ static long pcn_kmsg_test_ioctl(struct file *f, unsigned int cmd, unsigned long 
 #endif /* PCN_SUPPORT_MULTICAST */
 			
 		default:
-			TEST_ERR("invalid option %d\n", op);
+			TEST_ERR("invalid option %d\n", cmd);
 			rc = -1;
     }
     
@@ -594,7 +594,7 @@ static long pcn_kmsg_test_ioctl(struct file *f, unsigned int cmd, unsigned long 
 		int __rc;
 		__rc = copy_to_user((struct pcn_kmsg_test_args *) user_data, args, sizeof(struct pcn_kmsg_test_args));
 		if (__rc != 0) {
-			TEST_ERR("%s some data cannot be copied to user %d (but test succeded)\n", __rc);
+			TEST_ERR("some data cannot be copied to user %d (but test succeded)\n", __rc);
 			rc = -ENODEV;
 		}
 	}
@@ -681,7 +681,7 @@ static int __init pcn_kmsg_test_init(void)
 #endif 
 
 	// it registers to the messaging layer
-	rc = pcn_kmsg_register_handlers()
+	rc = pcn_kmsg_register_handlers();
 
 	return rc;
 }
@@ -698,7 +698,6 @@ static void __exit pcn_kmsg_test_exit(void)
 	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_TEST_LONG);
 }
 
-#define MODULE
 #ifdef MODULE
 module_init(pcn_kmsg_test_init);
 module_exit(pcn_kmsg_test_exit);
