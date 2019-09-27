@@ -1,19 +1,42 @@
 
-// TODO to be moved as an external module (not compiled in kernel)
+// moved as an external module (not compiled in kernel)
+// the user space need integration of Phil's tests, not sure if there are tests from Ben tho
 
 /*
  * Tests/benchmarks for Popcorn inter-kernel messaging layer
+ * Must work for any transport (need more refactoring for that, here only one test at the time)
  *
  * Rewritten by Antonio Barbalace, Stevens 2019
  * 
  * (C) Ben Shelton <beshelto@vt.edu> 2013
  */
 
+
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/version.h>
+
+#ifdef PCN_TEST_SYSCALL
 #include <linux/syscalls.h>
 
-#include <linux/multikernel.h>
-#include <linux/pcn_kmsg.h>
-#include <linux/pcn_kmsg_test.h>
+#else
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <linux/errno.h>
+#include <asm/uaccess.h>
+
+#include <linux/ioctl.h>
+#endif
+
+#include "multikernel.h"
+#include "pcn_kmsg.h"
+#include "pcn_kmsg_test.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// macros
+///////////////////////////////////////////////////////////////////////////////
 
 #define KMSG_TEST_VERBOSE 0
 
@@ -38,7 +61,7 @@ extern volatile unsigned long isr_ts, isr_ts_2, bh_ts, bh_ts_2;
 // test funcs
 ///////////////////////////////////////////////////////////////////////////////
 
-static int pcn_kmsg_test_send_single(struct pcn_kmsg_test_args __user *args)
+static int pcn_kmsg_test_send_single(struct pcn_kmsg_test_args *args)
 {
 	int rc = 0;
 	struct pcn_kmsg_test_message msg;
@@ -433,6 +456,8 @@ SYSCALL_DEFINE2(popcorn_test_kmsg, enum pcn_kmsg_test_op, op,
 {
 	int rc = 0;
 
+// TODO this must be updated to use copy_[from|to]_user
+	
 	TEST_PRINTK("Reached test kmsg syscall, op %d, cpu %d\n",
 		    op, args->cpu);
 
@@ -473,22 +498,10 @@ SYSCALL_DEFINE2(popcorn_test_kmsg, enum pcn_kmsg_test_op, op,
 
 	return rc;
 }
-#endif /* SYSCALL */
-
+#else /* ! SYSCALL */
 ///////////////////////////////////////////////////////////////////////////////
 // dev driver interface
 ///////////////////////////////////////////////////////////////////////////////
-
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/version.h>
-#include <linux/fs.h>
-#include <linux/cdev.h>
-#include <linux/device.h>
-#include <linux/errno.h>
-#include <asm/uaccess.h>
-
-#include <linux/ioctl.h>
  
 typedef struct
 {
@@ -501,97 +514,128 @@ typedef struct
 
 #define FIRST_MINOR 0
 #define MINOR_CNT 1
+#define DEV_NAME "kmsg_test"
  
-static dev_t dev;
-static struct cdev c_dev;
-static struct class *cl;
-static int status = 1, dignity = 3, ego = 5;
- 
-static int my_open(struct inode *i, struct file *f)
+static int pcn_kmsg_test_open(struct inode *i, struct file *f)
 {
     return 0;
 }
-static int my_close(struct inode *i, struct file *f)
+
+static int pcn_kmsg_test_close(struct inode *i, struct file *f)
 {
     return 0;
 }
+
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
-static int my_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned long arg)
+static int pcn_kmsg_test_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned long user_data)
 #else
-static long my_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+static long pcn_kmsg_test_ioctl(struct file *f, unsigned int cmd, unsigned long user_data)
 #endif
 {
-    query_arg_t q;
- 
+	int rc;
+    struct pcn_kmsg_test_args *args = kmalloc(sizeof(struct pcn_kmsg_test_args), GFP_KERNEL);
+    
+	if (args == 0)
+		return -ENOMEM;
+	
+	rc = copy_from_user(args, (struct pcn_kmsg_test_args *) user_data, sizeof(struct pcn_kmsg_test_args));
+	if (rc != 0) {
+		TEST_ERR("%s some data cannot be copied from user %d\n", rc);
+		return -ENODEV;
+	}
+	 
     switch (cmd)
     {
-        case QUERY_GET_VARIABLES:
-            q.status = status;
-            q.dignity = dignity;
-            q.ego = ego;
-            if (copy_to_user((query_arg_t *)arg, &q, sizeof(query_arg_t)))
-            {
-                return -EACCES;
-            }
-            break;
-        case QUERY_CLR_VARIABLES:
-            status = 0;
-            dignity = 0;
-            ego = 0;
-            break;
-        case QUERY_SET_VARIABLES:
-            if (copy_from_user(&q, (query_arg_t *)arg, sizeof(query_arg_t)))
-            {
-                return -EACCES;
-            }
-            status = q.status;
-            dignity = q.dignity;
-            ego = q.ego;
-            break;
-        default:
-            return -EINVAL;
+		case PCN_KMSG_TEST_SEND_SINGLE:
+			rc = pcn_kmsg_test_send_single(args);
+			break;
+
+		case PCN_KMSG_TEST_SEND_PINGPONG:
+			rc = pcn_kmsg_test_send_pingpong(args);
+			break;
+
+		case PCN_KMSG_TEST_SEND_BATCH:
+			rc = pcn_kmsg_test_send_batch(args);
+			break;
+
+		case PCN_KMSG_TEST_SEND_LONG:
+			rc = pcn_kmsg_test_long_msg(args);
+			break;
+#ifdef PCN_SUPPORT_MULTICAST
+		case PCN_KMSG_TEST_OP_MCAST_OPEN:
+			rc = pcn_kmsg_test_mcast_open(args);
+			break;
+
+		case PCN_KMSG_TEST_OP_MCAST_SEND:
+			rc = pcn_kmsg_test_mcast_send(args);
+			break;
+
+		case PCN_KMSG_TEST_OP_MCAST_CLOSE:
+			rc = pcn_kmsg_test_mcast_close(args);
+			break;
+#endif /* PCN_SUPPORT_MULTICAST */
+			
+		default:
+			TEST_ERR("invalid option %d\n", op);
+			rc = -1;
     }
- 
-    return 0;
+    
+    if (rc >= 0) {
+		int __rc;
+		__rc = copy_to_user((struct pcn_kmsg_test_args *) user_data, args, sizeof(struct pcn_kmsg_test_args));
+		if (__rc != 0) {
+			TEST_ERR("%s some data cannot be copied to user %d (but test succeded)\n", __rc);
+			rc = -ENODEV;
+		}
+	}
+    
+    kfree(args); 
+    return rc;
 }
  
-static struct file_operations query_fops =
+static struct file_operations pcn_kmsg_test_fops =
 {
     .owner = THIS_MODULE,
-    .open = my_open,
-    .release = my_close,
+    .open = pcn_kmsg_test_open,
+    .release = pcn_kmsg_test_close,
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
-    .ioctl = my_ioctl
+    .ioctl = pcn_kmsg_test_ioctl
 #else
-    .unlocked_ioctl = my_ioctl
+    .unlocked_ioctl = pcn_kmsg_test_ioctl
 #endif
 };
 
-int ret;
-    struct device *dev_ret;
+static dev_t dev;
+static struct cdev c_dev;
+static struct class *cl;
+
+static int pcn_kmsg_test_devinit(void)
+{
+    int ret;
+    struct device *dev_ret; 
  
- 
-    if ((ret = alloc_chrdev_region(&dev, FIRST_MINOR, MINOR_CNT, "query_ioctl")) < 0)
-    {
+	ret = alloc_chrdev_region(&dev, FIRST_MINOR, MINOR_CNT, DEV_NAME);
+    if (ret < 0)
         return ret;
-    }
+	TEST_PRINTK("%s registered major: %d\n", __func__, MAJOR(dev));
  
-    cdev_init(&c_dev, &query_fops);
- 
-    if ((ret = cdev_add(&c_dev, dev, MINOR_CNT)) < 0)
-    {
+    cdev_init(&c_dev, &pcn_kmsg_test_fops);
+	ret = cdev_add(&c_dev, dev, MINOR_CNT);
+    if (ret < 0)
         return ret;
-    }
      
-    if (IS_ERR(cl = class_create(THIS_MODULE, "char")))
-    {
+	cl = class_create(THIS_MODULE, "kipc");
+    if (IS_ERR(cl)) {
+		TEST_ERR("%s class_create error %ld\n", __func__, (long)cl);
         cdev_del(&c_dev);
         unregister_chrdev_region(dev, MINOR_CNT);
         return PTR_ERR(cl);
     }
-    if (IS_ERR(dev_ret = device_create(cl, NULL, dev, NULL, "query")))
-    {
-        class_destroy(cl);
+    
+    dev_ret = device_create(cl, NULL, dev, NULL, DEV_NAME);
+    if (IS_ERR(dev_ret)) {
+		TEST_ERR("%s device_create error %ld\n", __func__, (long)dev_ret);
+		class_destroy(cl);
         cdev_del(&c_dev);
         unregister_chrdev_region(dev, MINOR_CNT);
         return PTR_ERR(dev_ret);
@@ -600,18 +644,14 @@ int ret;
     return 0;
 }
  
-static void __exit query_ioctl_exit(void)
+static void pcn_kmsg_test_devexit(void)
 {
     device_destroy(cl, dev);
     class_destroy(cl);
     cdev_del(&c_dev);
     unregister_chrdev_region(dev, MINOR_CNT);
 }
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Antonio Barbalace");
-MODULE_DESCRIPTION("Testing module for Popcorn Linux messaging layer"); // TODO
-
+#endif /* ! SYSCALL */
 
 ///////////////////////////////////////////////////////////////////////////////
 // init fini
@@ -621,27 +661,38 @@ static int __init pcn_kmsg_test_init(void)
 {
 	int rc;
 
+#ifndef PCN_TEST_SYSCALL
+	TEST_PRINTK("Registering control device /dev/%s\n", DEV_NAME);
+	rc = pcn_kmsg_test_devinit();
+	if (rc != 0) {
+		TEST_ERR("Failed to register control device\n");
+		return rc;
+	}
+#endif 
+	
 	TEST_PRINTK("Registering test callbacks!\n");
 
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST,
 					&pcn_kmsg_test_callback);
-	if (rc) {
+	if (rc) 
 		TEST_ERR("Failed to register initial kmsg test callback!\n");
-	}
 
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST_LONG,
 					&pcn_kmsg_test_long_callback);
-	if (rc) {
+	if (rc)
 		TEST_ERR("Failed to register initial kmsg_test_long callback!\n");
-	}
 
 	return rc;
 }
 
-static void __init pcn_kmsg_test_exit(void)
+static void __exit pcn_kmsg_test_exit(void)
 {
+#ifndef PCN_TEST_SYSCALL
+	TEST_PRINTK("UnRegistering control device!\n");
+	pcn_kmsg_test_devexit();
+#endif
+	
 	TEST_PRINTK("UnRegistering test callbacks!\n");
-
 	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_TEST);
 	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_TEST_LONG);
 }
@@ -654,4 +705,6 @@ module_exit(pcn_kmsg_test_exit);
 late_initcall(pcn_kmsg_test_init);
 #endif
 
-
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Antonio Barbalace");
+MODULE_DESCRIPTION("Testing module for Popcorn Linux messaging layer"); // TODO maybe want to rewrite
