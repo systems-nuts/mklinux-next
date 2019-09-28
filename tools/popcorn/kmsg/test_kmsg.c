@@ -362,12 +362,12 @@ int main(int argc,  char *argv[])
 					targsp=&mtest_args[j]; 
 					printf("%lu %lu %lu %lu %lu %lu %lu %lu \n", 
 						targsp->send_ts,
-						(int)targsp->ts0,
-						(int)targsp->ts1,
-						(int)targsp->ts2,
-						(int)targsp->ts3,
-						(int)targsp->ts4,
-						(int)targsp->ts5,
+						targsp->ts0,
+						targsp->ts1,
+						targsp->ts2,
+						targsp->ts3,
+						targsp->ts4,
+						targsp->ts5,
 						targsp->rtt
 					);
 				}
