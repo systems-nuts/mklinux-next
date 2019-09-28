@@ -39,7 +39,7 @@
 // macros
 ///////////////////////////////////////////////////////////////////////////////
 
-#define KMSG_TEST_VERBOSE 1
+#define KMSG_TEST_VERBOSE 0
 
 #if KMSG_TEST_VERBOSE
 #define TEST_PRINTK(fmt, args...) printk("%s: " fmt, __func__, ##args)
@@ -77,7 +77,7 @@ static int pcn_kmsg_test_send_single(struct pcn_kmsg_test_args *args)
 	ts_end = rdtsc();
 
 	args->send_ts = ts_end - ts_start;
-TEST_PRINTK("send single return %d elpased %lu (to CPU %d )\n", rc, args->send_ts, msg.dest_cpu);
+	TEST_PRINTK("send single return %d elpased %lu (to CPU %d )\n", rc, args->send_ts, msg.dest_cpu);
 
 	return rc;
 }
@@ -342,6 +342,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 		ts3 = msg->ts3;
 		ts4 = msg->ts4;
 		ts5 = msg->ts5;
+		
 		*(&kmsg_done) = 1;
 		mb();
 	}
@@ -551,6 +552,9 @@ static int pcn_kmsg_test_close(struct inode *i, struct file *f)
     return 0;
 }
 
+// TODO remove the following and support concurrency
+DEFINE_MUTEX(ioctl_mutex); // this module doesn't support concurrency, but this is another thing to do
+
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
 static int pcn_kmsg_test_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned long user_data)
 #else
@@ -569,8 +573,9 @@ static long pcn_kmsg_test_ioctl(struct file *f, unsigned int cmd, unsigned long 
 		return -ENODEV;
 	}
 
-printk("reached ioctl\n");
-	 
+	if (!mutex_trylock(&ioctl_mutex)) 
+		return -EBUSY;
+		
     switch (cmd)
     {
 		case PCN_KMSG_TEST_SEND_SINGLE:
@@ -616,7 +621,8 @@ printk("reached ioctl\n");
 		}
 	}
     
-    kfree(args); 
+    kfree(args);
+	mutex_unlock(&ioctl_mutex);
     return rc;
 }
  

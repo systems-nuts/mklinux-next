@@ -12,7 +12,7 @@
 /* Debugging Macros */
 /*****************************************************************************/
 
-#define KMSG_VERBOSE 1
+#define KMSG_VERBOSE 0
 #if KMSG_VERBOSE
 #define KMSG_PRINTK(fmt, args...) printk("%s: " fmt, __func__, ##args)
 #else
