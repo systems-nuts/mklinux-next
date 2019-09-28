@@ -176,6 +176,7 @@ int main(int argc,  char *argv[])
 	struct pcn_kmsg_test_args *targsp=&mtest_args[0];
 	unsigned long num_tests = 1;
 
+	memset(targsp, 0, sizeof(struct pcn_kmsg_test_args ));
 	targsp->cpu = -1;
 	//targsp->use_thread = 0; // TODO
 	targsp->mask = 0;
@@ -298,6 +299,7 @@ int main(int argc,  char *argv[])
 	for (i = 0; i < num_tests; i++) {
 		// Update group number
 		// data from 0 used for the whole group 
+
 		targsp=&mtest_args[0];  // use one of the test args buffers (only one is used so no alloc problem)
 
 		// copy default data
