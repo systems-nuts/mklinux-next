@@ -461,7 +461,7 @@ static int pcn_kmsg_register_handlers(void)
 {
 	int rc;
 
-	TEST_PRINTK("Registering test callbacks!\n");
+	printk("Registering test callbacks!\n");
 
 	rc = pcn_kmsg_register_callback(PCN_KMSG_TYPE_TEST,
 					&pcn_kmsg_test_callback);
@@ -695,7 +695,7 @@ static int __init pcn_kmsg_test_init(void)
 	int rc;
 
 #ifndef PCN_TEST_SYSCALL
-	TEST_PRINTK("Registering control device /dev/%s\n", DEV_NAME);
+	printk("Registering control device /dev/%s\n", DEV_NAME);
 	rc = pcn_kmsg_test_devinit();
 	if (rc != 0) {
 		TEST_ERR("Failed to register control device\n");
@@ -712,11 +712,11 @@ static int __init pcn_kmsg_test_init(void)
 static void __exit pcn_kmsg_test_exit(void)
 {
 #ifndef PCN_TEST_SYSCALL
-	TEST_PRINTK("UnRegistering control device!\n");
+	printk("UnRegistering control device!\n");
 	pcn_kmsg_test_devexit();
 #endif
 	
-	TEST_PRINTK("UnRegistering test callbacks!\n");
+	printk("UnRegistering test callbacks!\n");
 	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_TEST);
 	pcn_kmsg_unregister_callback(PCN_KMSG_TYPE_TEST_LONG);
 }

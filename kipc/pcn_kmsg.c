@@ -1275,7 +1275,7 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts) {
 	isr_ts_2 = rdtsc();
 	//}
 
-	printk("interrupt handler at CPU %d\n", raw_smp_processor_id());
+	KMSG_PRINTK("interrupt handler at CPU %d\n", raw_smp_processor_id());
 
 	/* schedule bottom half */
 	//__raise_softirq_irqoff(PCN_KMSG_SOFTIRQ);
