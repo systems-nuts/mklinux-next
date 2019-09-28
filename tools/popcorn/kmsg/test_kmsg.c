@@ -43,7 +43,7 @@ enum pcn_kmsg_test_op {
 	PCN_KMSG_TRIGGER_CPU_WAIT */
 };
 
-struct pcn_kmsg_teb nmst_args {
+struct pcn_kmsg_test_args {
 	int cpu;
 	/*int use_thread;
 	int wg_val; 
@@ -106,7 +106,7 @@ struct pcn_kmsg_test_args mtest_args[16];
 int print_res3(struct pcn_kmsg_test_args *targsp) 
 {
         int i;
-	int g_val = targsp->g_val;
+	int g_val = 1; // targsp->g_val;
 	for ( i = 0 ; i < g_val; i++) {
 	        printf("%lu %u %u %u %u %lu\n",
 		       targsp->send_ts,
@@ -143,7 +143,7 @@ int print_res2(struct pcn_kmsg_test_args *targsp, int g_val)
 int print_res(struct pcn_kmsg_test_args *targsp) 
 {
         int i;
-	int g_val = targsp->g_val;
+	int g_val = 1; //targsp->g_val;
 	for ( i = 0 ; i < g_val; i++) {
 	  
 	        printf("%010lu %02d %02d %08x %u %lu\n",
@@ -177,11 +177,11 @@ int main(int argc,  char *argv[])
 	unsigned long num_tests = 1;
 
 	targsp->cpu = -1;
-	targsp->use_thread = 0;
+	//targsp->use_thread = 0; // TODO
 	targsp->mask = 0;
 	targsp->mcast_id = -1;
 	targsp->batch_size = 1;
-	//targsp->g_val = 1;
+	//targsp->g_val = 1; // TODO
 
 	test_op = -1;
 	g_val = 1;

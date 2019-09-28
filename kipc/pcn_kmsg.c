@@ -781,7 +781,7 @@ static int __init pcn_kmsg_init(void)
         __func__, (unsigned long)ROUND_PAGE_SIZE(sizeof(struct pcn_kmsg_window)), (unsigned long)KMALLOC_MAX_SIZE);
 
 	/* register interrupt handler, this requires kernel modifications */
-	if (!popcorn_kmsg_interrupt_handler)
+	if (popcorn_kmsg_interrupt_handler == 0)
 		popcorn_kmsg_interrupt_handler = smp_popcorn_kmsg_interrupt;
 	else {
 		printk(KERN_ALERT "another module already registered TODO\n");
@@ -806,23 +806,26 @@ static int __init pcn_kmsg_init(void)
 	/* one of the following, rkinfo, per system */
 	rkinfo->phys_addr[my_cpu] = win_phys_addr;
 	memcpy(&(rkinfo->_cpumask[my_cpu]), cpu_present_mask, sizeof(struct cpumask));
+
+	rc = pcn_kmsg_window_init(rkvirt[my_cpu]);
+        if (rc) {
+                KMSG_ERR("Failed to initialize kmsg recv window!\n");
+                return -1;
+        }
+
+	rkinfo->active[my_cpu]= 1;
 #if 1
-	/* antonio clustering also for test */
+	/* antonio clustering also for test TODO this is not completely correct, needs more work*/
 	int cur_cpu;
 	for_each_present_cpu(cur_cpu) { 
+		if (cur_cpu == my_cpu)
+			continue;
 		if (!(cur_cpu < POPCORN_MAX_CPUS))
 			break;
 		rkvirt[cur_cpu] = win_virt_addr;
+		rkinfo->active[cur_cpu] =1;
 	}
 #endif	
-	
-	rc = pcn_kmsg_window_init(rkvirt[my_cpu]);
-	if (rc) {
-		KMSG_ERR("Failed to initialize kmsg recv window!\n");
-		return -1;
-	}
-
-	rkinfo->active[my_cpu]= 1;
 
 	/* If we're not the master kernel, we need to check in */
 	if (mklinux_boot) {
@@ -1036,15 +1039,18 @@ static int __pcn_kmsg_send_timed(unsigned int dest_cpu, struct pcn_kmsg_message 
 	}
 
 	rc = start_send_if_possible(dest_cpu);
-	if (unlikely(rc==-1))
+	if (unlikely(rc==-1)) {
+		KMSG_ERR("start_send_if possible failed\n");
                 return -1;
+	}
 
 	msg->hdr.from_cpu = my_cpu;
 	rc = win_put_timed(dest_window, msg, no_block, time);
-
 	if (rc) {
-		if (no_block && (rc == -EAGAIN))
+		if (no_block && (rc == -EAGAIN)) {
+			KMSG_ERR("Failed to insert message\n");
 			goto exit;
+		}
 
 		KMSG_ERR("Failed to place message in dest win!\n");
 		goto exit;
@@ -1053,8 +1059,9 @@ static int __pcn_kmsg_send_timed(unsigned int dest_cpu, struct pcn_kmsg_message 
 // NOTIFICATION ---------------------------------------------------------------
 	/* send IPI */
 	if (win_int_enabled(dest_window)) {
-		KMSG_PRINTK("Interrupts enabled; sending IPI...\n");
+		KMSG_PRINTK("Interrupts enabled; sending IPI to %d ...\n", dest_cpu);
 
+preempt_disable();
 	int_ts = rdtsc(); // TODO refactor, somewhere else we are using native_read_tsc ...
 // TODO the following dpends on the kernel version        
 #if 1
@@ -1062,6 +1069,7 @@ static int __pcn_kmsg_send_timed(unsigned int dest_cpu, struct pcn_kmsg_message 
 #else
         //default_send_IPI_single(dest_cpu, POPCORN_KMSG_VECTOR); // TODO note that there is also send_IPI_single_phys
 #endif
+preempt_enable();
 	} else {
 		KMSG_PRINTK("Interrupts not enabled; not sending IPI...\n");
 	}
@@ -1266,6 +1274,8 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts) {
 	//if (!isr_ts_2) {
 	isr_ts_2 = rdtsc();
 	//}
+
+printk("interrupt %d\n", smp_processor_id());
 
 	/* schedule bottom half */
 	//__raise_softirq_irqoff(PCN_KMSG_SOFTIRQ);
@@ -1535,7 +1545,7 @@ pull_msg:
 	//while ((work_done < PCN_KMSG_BUDGET) && (!win_get(rkvirt[my_cpu], &msg))) {
 	//while ( win_get(win, &msg) ) {
 	while ( (ret = win_get_common(win, &msg, forced, &timeout)) != -1 ) {
-		//int _forced = forced;
+		int _forced = forced;
 		KMSG_PRINTK("got a message!\n");
 
 		if ((forced = force_flush)) //update operation mode (it is async with this execution)

@@ -73,21 +73,25 @@ static int pcn_kmsg_test_send_single(struct pcn_kmsg_test_args *args)
 	msg.dest_cpu = args->cpu;
 
 	ts_start = rdtsc();
-	pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
+	rc = pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
 	ts_end = rdtsc();
 
 	args->send_ts = ts_end - ts_start;
+TEST_PRINTK("send single return %d elpased %lu (to CPU %d )\n", rc, args->send_ts, msg.dest_cpu);
 
 	return rc;
 }
 
 extern unsigned long int_ts;
 
+#define LOOPOUT 10000000l
+
 static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 {
 	int rc = 0;
 	struct pcn_kmsg_test_message msg;
 	unsigned long ts_start, ts_end;
+	unsigned long loopout;
 
 	msg.hdr.type = PCN_KMSG_TYPE_TEST;
 	msg.hdr.prio = PCN_KMSG_PRIO_HIGH;
@@ -98,13 +102,14 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	kmsg_done = 0;
 
 	ts_start = rdtsc();
-	pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
+	rc = pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
 	ts_end = rdtsc();
 	
-	while (!kmsg_done) {} // TODO may require refactoring
+	loopout = LOOPOUT;
+	while (!kmsg_done && loopout) {loopout--;} // TODO may require refactoring
 
 // TODO some more refactoring is needed
-	TEST_PRINTK("Elapsed time (ticks): %lu\n", kmsg_tsc - ts_start);
+	TEST_PRINTK("pp returned %d Elapsed time (ticks): %lu (%x) loopout: %lu\n (to CPU %d)", rc, kmsg_tsc - ts_start, kmsg_done, loopout, msg.dest_cpu);
 
 	args->send_ts = ts_start;
 	args->ts0 = int_ts;
@@ -557,6 +562,8 @@ static long pcn_kmsg_test_ioctl(struct file *f, unsigned int cmd, unsigned long 
 		TEST_ERR("some data cannot be copied from user %d\n", rc);
 		return -ENODEV;
 	}
+
+printk("reached ioctl\n");
 	 
     switch (cmd)
     {
