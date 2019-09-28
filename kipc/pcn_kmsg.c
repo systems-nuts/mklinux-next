@@ -756,7 +756,7 @@ static int __init pcn_kmsg_init(void)
 		boot_params_va->pcn_kmsg_master_window = rkinfo_phys_addr;
 #endif
 		KMSG_INIT("boot_params virt %p phys 0x%lx\n",
-			boot_params_va, -1); //orig_boot_params);
+			boot_params_va, -1l); //orig_boot_params);
 	}
 	else {
 // TODO requires patching        
@@ -816,6 +816,7 @@ static int __init pcn_kmsg_init(void)
 	rkinfo->active[my_cpu]= 1;
 #if 1
 	/* antonio clustering also for test TODO this is not completely correct, needs more work*/
+{
 	int cur_cpu;
 	for_each_present_cpu(cur_cpu) { 
 		if (cur_cpu == my_cpu)
@@ -825,6 +826,7 @@ static int __init pcn_kmsg_init(void)
 		rkvirt[cur_cpu] = win_virt_addr;
 		rkinfo->active[cur_cpu] =1;
 	}
+}
 #endif	
 
 	/* If we're not the master kernel, we need to check in */
@@ -1263,7 +1265,9 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs)
 #endif
 
 //irq_enter and irq_exit are already called by the __irq_entry ISR
-void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts) {
+void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
+{
+	struct work_struct* kmsg_work = 0;
 
 	/* We do as little work as possible in here (decoupling notification 
 	   from messaging) */
@@ -1279,7 +1283,7 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts) {
 
 	/* schedule bottom half */
 	//__raise_softirq_irqoff(PCN_KMSG_SOFTIRQ);
-	struct work_struct* kmsg_work = kmalloc(sizeof(struct work_struct), GFP_ATOMIC);
+	kmsg_work = kmalloc(sizeof(struct work_struct), GFP_ATOMIC); // TODO allocate a pool of this size to speed up allocation
 	if (kmsg_work) {
 		INIT_WORK(kmsg_work,pcn_kmsg_action);
 		queue_work(messaging_wq, kmsg_work); //it was queue_work_on schedules on the same CPU
@@ -1652,8 +1656,9 @@ static void pcn_kmsg_action(struct work_struct* work)
 	rc = process_message_list(&msglist_normprio);
 
 	if ( waitqueue_active(&force_flush_queue) ) {
-                wake_up_all(&force_flush_queue);
-                int ret = sync_cmpxchg(&force_flush, 1, 0);
+		int ret;                
+		wake_up_all(&force_flush_queue);
+                ret = sync_cmpxchg(&force_flush, 1, 0);
                 if ( !ret )
                         printk(KERN_ALERT"%s: waken up all elements in force_flush wait queue but force_flush was %d\n", __func__, ret );
 	}
