@@ -84,7 +84,7 @@ TEST_PRINTK("send single return %d elpased %lu (to CPU %d )\n", rc, args->send_t
 
 extern unsigned long int_ts;
 
-#define LOOPOUT 10000000l
+#define LOOPOUT 10000000000ll
 
 static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 {
@@ -104,12 +104,15 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	ts_start = rdtsc();
 	rc = pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
 	ts_end = rdtsc();
+
+	if (rc < 0)
+		return -EBUSY; // need to rework the error codes TODO
 	
 	loopout = LOOPOUT;
-	while (!kmsg_done && loopout) {loopout--;} // TODO may require refactoring
+	while (!kmsg_done && loopout) {loopout--; schedule();} // TODO may require refactoring
 
 // TODO some more refactoring is needed
-	TEST_PRINTK("pp returned %d Elapsed time (ticks): %lu (%x) loopout: %lu\n (to CPU %d)", rc, kmsg_tsc - ts_start, kmsg_done, loopout, msg.dest_cpu);
+	TEST_PRINTK("pp returned %d Elapsed time (ticks): %lu (%x) loopout: %lu (to CPU %d)\n", rc, kmsg_tsc - ts_start, kmsg_done, loopout, msg.dest_cpu);
 
 	args->send_ts = ts_start;
 	args->ts0 = int_ts;
@@ -308,6 +311,8 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 		reply_msg.hdr.type = PCN_KMSG_TYPE_TEST;
 		reply_msg.hdr.prio = PCN_KMSG_PRIO_HIGH;
 		reply_msg.op = PCN_KMSG_TEST_SEND_PINGPONG;
+		reply_msg.src_cpu = msg->src_cpu;
+		reply_msg.dest_cpu = msg->dest_cpu;
 		reply_msg.ts1 = isr_ts;
 		reply_msg.ts2 = isr_ts_2;
 		reply_msg.ts3 = bh_ts;
@@ -337,7 +342,8 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 		ts3 = msg->ts3;
 		ts4 = msg->ts4;
 		ts5 = msg->ts5;
-		kmsg_done = 1;
+		*(&kmsg_done) = 1;
+		mb();
 	}
 
 	return 0;

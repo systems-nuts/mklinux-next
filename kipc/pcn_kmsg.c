@@ -1044,7 +1044,7 @@ static int __pcn_kmsg_send_timed(unsigned int dest_cpu, struct pcn_kmsg_message 
                 return -1;
 	}
 
-	msg->hdr.from_cpu = my_cpu;
+	msg->hdr.from_cpu = raw_smp_processor_id();
 	rc = win_put_timed(dest_window, msg, no_block, time);
 	if (rc) {
 		if (no_block && (rc == -EAGAIN)) {
@@ -1275,14 +1275,14 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts) {
 	isr_ts_2 = rdtsc();
 	//}
 
-printk("interrupt %d\n", smp_processor_id());
+	printk("interrupt handler at CPU %d\n", raw_smp_processor_id());
 
 	/* schedule bottom half */
 	//__raise_softirq_irqoff(PCN_KMSG_SOFTIRQ);
 	struct work_struct* kmsg_work = kmalloc(sizeof(struct work_struct), GFP_ATOMIC);
 	if (kmsg_work) {
 		INIT_WORK(kmsg_work,pcn_kmsg_action);
-		queue_work(messaging_wq, kmsg_work);
+		queue_work(messaging_wq, kmsg_work); //it was queue_work_on schedules on the same CPU
 	} else {
 		KMSG_ERR("Failed to kmalloc work structure!\n");
 	}
