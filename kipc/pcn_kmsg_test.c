@@ -50,11 +50,20 @@
 #define TEST_ERR(fmt, args...) printk("%s: ERROR: " fmt, __func__, ##args)
 
 volatile unsigned long kmsg_tsc;
-unsigned long ts1, ts2, ts3, ts4, ts5;
-
+volatile unsigned long ts1, ts2, ts3, ts4, ts5;
 volatile int kmsg_done;
 
-extern volatile unsigned long isr_ts, isr_ts_2, bh_ts, bh_ts_2;
+extern volatile unsigned long int_ts;
+extern volatile unsigned long isr_ts, isr_ts_2;
+extern volatile unsigned long bh_ts, bh_ts_2;
+
+/* NOTE mapping for pingpong (can be mixed between sender and receiver? I don't think so at the moment)
+ * ts1 = isr_ts		interrupt handler
+ * ts2 = isr_ts_2	interrupt handler
+ * ts3 = bh_ts		workqueue
+ * ts4 = bh_ts_2	workqueue
+ * ts5 = handler_ts	
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 // test funcs
@@ -81,8 +90,6 @@ static int pcn_kmsg_test_send_single(struct pcn_kmsg_test_args *args)
 
 	return rc;
 }
-
-extern unsigned long int_ts;
 
 #define LOOPOUT 10000000000ll
 
