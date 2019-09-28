@@ -58,11 +58,14 @@ extern volatile unsigned long isr_ts, isr_ts_2;
 extern volatile unsigned long bh_ts, bh_ts_2;
 
 /* NOTE mapping for pingpong (can be mixed between sender and receiver? I don't think so at the moment)
- * ts1 = isr_ts		interrupt handler
- * ts2 = isr_ts_2	interrupt handler
- * ts3 = bh_ts		workqueue
- * ts4 = bh_ts_2	workqueue
- * ts5 = handler_ts	
+ * send_ts = send (snd)
+ * ts0 = pong intr (snd)
+ * ts1 = isr_ts		interrupt handler (rcv)
+ * ts2 = isr_ts_2	interrupt handler (rcv)
+ * ts3 = bh_ts		workqueue (rcv)
+ * ts4 = bh_ts_2	workqueue (rcv)
+ * ts5 = handler_ts	(rcv)
+ * rtt = kmsg_tsc (snd)
  */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,6 +133,11 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	args->ts5 = ts5;
 	args->rtt = kmsg_tsc;
 
+	printk("Received ping-pong = %lu %lu [[%lu %lu %lu %lu %lu]] %lu\n",
+			ts_start, int_ts,
+			ts1, ts2, ts3, ts4, ts5, 
+			kmsg_tsc);
+	
 	return rc;
 }
 
@@ -352,6 +360,8 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 		
 		*(&kmsg_done) = 1;
 		mb();
+		
+		//pcn_kmsg_free_msg(msg); //TODO free allocated memory
 	}
 
 	return 0;
