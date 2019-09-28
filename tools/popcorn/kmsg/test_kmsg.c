@@ -354,18 +354,21 @@ int main(int argc,  char *argv[])
 					targsp->send_ts);
 				break;
 			case PCN_KMSG_TEST_SEND_PINGPONG:
-				num_res=g_val;
-				if (num_res==0) num_res = 1;
+				//num_res=g_val;
+				//if (num_res==0)
+					num_res = 1;
 
 				for (j = 0; j < num_res; j++ ) {
 					targsp=&mtest_args[j]; 
-					printf("%lu %lu %lu %lu %lu %lu\n", 
+					printf("%lu %lu %lu %lu %lu %lu %lu %lu \n", 
 						targsp->send_ts,
-						(int)targsp->ts0-targsp->send_ts,
-						(int)targsp->ts1-targsp->send_ts,
-						(int)targsp->ts3-targsp->send_ts,
-						(int)targsp->ts2-targsp->send_ts,
-						targsp->rtt-targsp->send_ts
+						(int)targsp->ts0,
+						(int)targsp->ts1,
+						(int)targsp->ts2,
+						(int)targsp->ts3,
+						(int)targsp->ts4,
+						(int)targsp->ts5,
+						targsp->rtt
 					);
 				}
 			  break;

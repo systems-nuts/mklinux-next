@@ -10,6 +10,8 @@ command -v taskset >/dev/null 2>&1 || { echo >&2 "taskset is required but it's n
 command -v python >/dev/null 2>&1 || { echo >&2 "python is required but it's not installed. Exiting."; exit 1; }
 command -v ./lstopo.py >/dev/null 2>&1 || { echo >&2 "lstopo.py is required but it's missing. Exiting."; exit 1; }
 command -v ./calibrate >/dev/null 2>&1 || { echo >&2 "calibrate is required but it's not compiled. Exiting."; exit 1; }
+
+# check if required modules are in
 KMSG_IPI_MODULE=`lsmod | grep kmsg_ipi_test`
 if [ -z "$KMSG_IPI_MODULE" ] ; then echo >&2 "kmsg_ipi_test.ko module not loaded. Exiting." ; exit 1 ; fi
 
