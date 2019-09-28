@@ -1275,9 +1275,8 @@ void smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 	/* disable further interrupts for now */
 	win_disable_int(rkvirt[my_cpu]);
 
-	//if (!isr_ts_2) {
 	isr_ts_2 = rdtsc();
-	//}
+	isr_ts = (unsigned long)ts;
 
 	KMSG_PRINTK("interrupt handler at CPU %d\n", raw_smp_processor_id());
 

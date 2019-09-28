@@ -299,7 +299,8 @@ int main(int argc,  char *argv[])
 	for (i = 0; i < num_tests; i++) {
 		// Update group number
 		// data from 0 used for the whole group 
-		targsp=&mtest_args[0];  // use one of the test args buffers		
+
+		targsp=&mtest_args[0];  // use one of the test args buffers (only one is used so no alloc problem)
 
 		// copy default data
 		//targsp->cpu = test_args.cpu;
