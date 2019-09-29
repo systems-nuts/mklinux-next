@@ -59,6 +59,12 @@ struct pcn_kmsg_test_args {
 	unsigned long ts4;
 	unsigned long ts5;
 	unsigned long rtt;
+	
+	unsigned long ts6;
+	unsigned long ts7;
+	unsigned long ts8;
+	unsigned long ts9;
+	unsigned long ts10;
 };
 
 // TODO refactoring is needed
@@ -362,15 +368,11 @@ int main(int argc,  char *argv[])
 
 				for (j = 0; j < num_res; j++ ) {
 					targsp=&mtest_args[j]; 
-					printf("%lu %lu %lu %lu %lu %lu %lu %lu \n", 
-						targsp->send_ts,
-						targsp->ts0,
-						targsp->ts1,
-						targsp->ts2,
-						targsp->ts3,
-						targsp->ts4,
-						targsp->ts5,
-						targsp->rtt
+					printf("%lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n", 
+						targsp->send_ts, targsp->ts0, 
+						targsp->ts1, targsp->ts2, targsp->ts3, targsp->ts4, targsp->ts5,
+						targsp->rtt,
+						targsp->ts6, targsp->ts7, targsp->ts8, targsp->ts9, targsp->ts10,
 					);
 				}
 			  break;

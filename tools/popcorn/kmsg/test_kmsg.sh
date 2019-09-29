@@ -53,6 +53,13 @@ do
       
       exit 1 
       
+      udo taskset 1 ./test_kmsg -c 12 -t 1 -n 32 | awk 'BEGIN{VAL=2693534579.670722*0.000001} {print ($2 -$1)/VAL, ($8 -$1)/VAL, ($4 -$3)/VAL, ($5 -$3)/VAL, ($6 -$3)/VAL, ($7 -$3)/VAL}' 
+      # TODO in us
+      
+      // send time
+      for CURC in `seq 2 63` ; do  sudo taskset 1 ./test_kmsg -c $CURC -t 0 -n 1 | awk 'BEGIN{VAL=2693534579.670722*0.000001} {print ($4+0.0)/VAL}' ; done
+      
+      
     done
     
     #TODO TODO TODO TODO
