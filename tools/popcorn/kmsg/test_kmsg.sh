@@ -55,10 +55,17 @@ do
       
       udo taskset 1 ./test_kmsg -c 12 -t 1 -n 32 | awk 'BEGIN{VAL=2693534579.670722*0.000001} {print ($2 -$1)/VAL, ($8 -$1)/VAL, ($4 -$3)/VAL, ($5 -$3)/VAL, ($6 -$3)/VAL, ($7 -$3)/VAL}' 
       # TODO in us
+      /// updated version
+      echo "CPU" "RTT" "snd(snd)" "int(rcv)" "bh(rcv)" "bh1(rcv)" "hnd(rcv)" "snd(rcv)" "int(rcv)" "bh(rcv)" "bh1(rcv)" ; for CURC in `seq 2 63` ; do  RESULT=`sudo taskset 1 ./test_kmsg -c $CURC -t 1 -n 1` ; echo "$RESULT" | awk 'BEGIN{VAL=2693534579.670722*0.000001;} {print ($8 -$1)/VAL, ($2 -$1)/VAL, ($4 -$3)/VAL, ($5 -$3)/VAL, ($6 -$3)/VAL, ($7 -$3)/VAL, ($9 -$3)/VAL, ($11 -$10)/VAL, ($12 -$11)/VAL, ($13 -$11)/VAL}'; done
+
+      
+      
       
       // send time
       for CURC in `seq 2 63` ; do  sudo taskset 1 ./test_kmsg -c $CURC -t 0 -n 1 | awk 'BEGIN{VAL=2693534579.670722*0.000001} {print ($4+0.0)/VAL}' ; done
-      
+      //// NEW version
+      for CURC in `seq 2 143` ; do  RESULT=`sudo taskset 1 ./test_kmsg -c $CURC -t 0 -n 1` ; echo $CURC $RESULT | awk 'BEGIN{VAL=2693534579.670722*0.000001} {print $1, ($5+0.0)/VAL}' ; done
+
       
     done
     

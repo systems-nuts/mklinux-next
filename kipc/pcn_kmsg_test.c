@@ -60,21 +60,21 @@ extern volatile unsigned long bh_ts, bh_ts_2;
 // TODO this is terrible need to put an array or something else ...
 
 /* NOTE mapping for pingpong (can be mixed between sender and receiver? I don't think so at the moment)
- * send_ts = send (snd)
- * ts0 = int_ts		before sending interrupt (snd)
- * 		end ipi_send
- * ts1 = isr_ts		interrupt handler (rcv)
- * ts2 = isr_ts_2	interrupt handler (rcv)
- * ts3 = bh_ts		workqueue (rcv)
- * ts4 = bh_ts_2	workqueue (rcv)
- * ts5 = handler_ts	(rcv-local_var)
- * rtt = kmsg_tsc (snd)
+ * 1 send_ts = before send (snd)
+ * 2 ts0 = int_ts		before sending interrupt (snd)
+ * 		end ipi_send, after sending interrupt (snd) 
+ * 3 ts1 = isr_ts		interrupt handler (rcv)
+ * 4 ts2 = isr_ts_2	interrupt handler (rcv)
+ * 5 ts3 = bh_ts		workqueue (rcv)
+ * 6 ts4 = bh_ts_2	workqueue (rcv)
+ * 7 ts5 = handler_ts	(rcv-local_var)
+ * 8 rtt = kmsg_tsc (snd)
  * 
- * ts6 = int_ts		before sending interrupt (rcv)
- * ts7 = isr_ts		interrupt handler (snd)
- * ts8 = isr_ts_2	interrupt handler (snd)
- * ts9 = bh_ts		workqueue (rcv)
- * ts10= bs_ts_2	workqueue (rcv)
+ * 9 ts6 = int_ts		before sending interrupt (rcv)
+ * 10 ts7 = isr_ts		interrupt handler (snd)
+ * 11 ts8 = isr_ts_2	interrupt handler (snd)
+ * 12 ts9 = bh_ts		workqueue (rcv)
+ * 13 ts10= bs_ts_2	workqueue (rcv)
  */
 
 ///////////////////////////////////////////////////////////////////////////////
