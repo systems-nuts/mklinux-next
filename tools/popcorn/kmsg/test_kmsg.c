@@ -372,7 +372,7 @@ int main(int argc,  char *argv[])
 						targsp->send_ts, targsp->ts0, 
 						targsp->ts1, targsp->ts2, targsp->ts3, targsp->ts4, targsp->ts5,
 						targsp->rtt,
-						targsp->ts6, targsp->ts7, targsp->ts8, targsp->ts9, targsp->ts10,
+						targsp->ts6, targsp->ts7, targsp->ts8, targsp->ts9, targsp->ts10
 					);
 				}
 			  break;
