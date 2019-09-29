@@ -146,9 +146,25 @@ enum pcn_kmsg_prio {
 #define __READY_SIZE 1
 #define LG_SEQNUM_SIZE  (16 - __READY_SIZE)
 
+#if 1
 /* Message header */
 struct pcn_kmsg_hdr {
-	unsigned int from_cpu	:8; // b0
+	unsigned char from_cpu;	// b0
+	unsigned char type;		//WAS enum pcn_kmsg_type type; // b1
+	unsigned char prio;		//WAS enum pcn_kmsg_prio prio	:5; // b2
+	unsigned char is_lg_msg;//WAS unsigned int is_lg_msg  :1;
+	unsigned char lg_start;	//WAS unsigned int lg_start   :1;
+	unsigned char lg_end;	//WAS unsigned int lg_end     :1;
+
+	unsigned long long_number; // b3 .. b10
+	
+	unsigned short lg_seq;	//WAS unsigned int lg_seqnum 	:LG_SEQNUM_SIZE; // b11 .. b12
+	unsigned short __ready; //WAS unsigned int __ready	:__READY_SIZE;
+}__attribute__((packed));
+#else // original that doesn't work because of bitfields
+/* Message header */
+struct pcn_kmsg_hdr {
+	unsigned int from_cpu; // b0
 	
 	enum pcn_kmsg_type type	:8; // b1
 	
@@ -162,6 +178,7 @@ struct pcn_kmsg_hdr {
 	unsigned int lg_seqnum 	:LG_SEQNUM_SIZE; // b11 .. b12
 	unsigned int __ready	:__READY_SIZE;
 }__attribute__((packed));
+#endif
 /*#if (((sizeof(struct pcn_kmsg_hdr)*8) - 24 - sizeof(unsigned long) - __READY_SIZE) != LG_SEQNUM_SIZE)
  #error "LG_SEQNUM_SIZE is not correctly sized"
 #endif */
