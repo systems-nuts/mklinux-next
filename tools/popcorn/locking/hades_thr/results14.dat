@@ -1,0 +1,20 @@
+6383:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 7)
+0 1 7 8 Thread 0 going to cpu 0
+Thread 1 going to cpu 1
+Thread 2 going to cpu 7
+9 going to barrier (cpu 1)
+Thread 3 going to cpu 8
+going to barrier (cpu 8)
+going to barrier (cpu 0)
+going to barrier (cpu 7)
+13 Thread 4 going to cpu 9
+14 Thread 5 going to cpu 13
+going to barrier (cpu 13)
+Thread 6 going to cpu 14
+going to barrier (cpu 14)
+
+STARTING...
+going to barrier (cpu 9)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 14660438

@@ -1,0 +1,14 @@
+511:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 4)
+0 4 8 Thread 0 going to cpu 0
+10 Thread 1 going to cpu 4
+going to barrier (cpu 4)
+going to barrier (cpu 0)
+Thread 3 going to cpu 10
+Thread 2 going to cpu 8
+going to barrier (cpu 10)
+
+STARTING...
+going to barrier (cpu 8)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 23011837
