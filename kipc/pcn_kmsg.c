@@ -1611,7 +1611,7 @@ pull_msg:
 }
 
 // TODO need refactoring
-unsigned volatile long bh_ts = 0, bh_ts_2 = 0;
+volatile unsigned long bh_ts = 0, bh_ts_2 = 0;
 EXPORT_SYMBOL(bh_ts);
 EXPORT_SYMBOL(bh_ts_2);
 

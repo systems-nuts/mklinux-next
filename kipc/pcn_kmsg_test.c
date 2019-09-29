@@ -342,6 +342,9 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 			return -1;
 		}
 
+		printk("pingpong handler %lu %lu %lu  %lu %lu CPU %d now CPU %d\n",
+				isr_ts, isr_ts_2, bh_ts, bh_ts_2, handler_ts, msg->dest_cpu, raw_smp_processor_id());
+		)
 		isr_ts = isr_ts_2 = bh_ts = bh_ts_2 = 0;
 	} 
 	// this CPU should be the sender
