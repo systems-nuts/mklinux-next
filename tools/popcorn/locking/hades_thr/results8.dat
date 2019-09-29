@@ -1,0 +1,16 @@
+255:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 5)
+0 2 4 Thread 0 going to cpu 0
+6 Thread 1 going to cpu 2
+9 going to barrier (cpu 2)
+Thread 2 going to cpu 4
+Thread 3 going to cpu 6
+going to barrier (cpu 4)
+Thread 4 going to cpu 9
+going to barrier (cpu 9)
+going to barrier (cpu 6)
+going to barrier (cpu 0)
+
+STARTING...
+STOPPING...
+Duration      : 10001 (ms)
+Acquisitions  : 17993232

@@ -1,0 +1,16 @@
+2047:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 5)
+0 1 2 Thread 0 going to cpu 0
+6 Thread 1 going to cpu 1
+13 Thread 3 going to cpu 6
+Thread 2 going to cpu 2
+Thread 4 going to cpu 13
+going to barrier (cpu 1)
+going to barrier (cpu 2)
+going to barrier (cpu 13)
+going to barrier (cpu 6)
+
+STARTING...
+going to barrier (cpu 0)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 18362592
