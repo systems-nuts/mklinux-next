@@ -344,7 +344,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 
 		printk("pingpong handler %lu %lu %lu  %lu %lu CPU %d now CPU %d\n",
 				isr_ts, isr_ts_2, bh_ts, bh_ts_2, handler_ts, msg->dest_cpu, raw_smp_processor_id());
-		)
+		
 		isr_ts = isr_ts_2 = bh_ts = bh_ts_2 = 0;
 	} 
 	// this CPU should be the sender
@@ -713,6 +713,9 @@ static void pcn_kmsg_test_devexit(void)
 static int __init pcn_kmsg_test_init(void)
 {
 	int rc;
+
+	printk("hdr %ld payload %ld test %ld\n",
+		PCN_KMSG_PAYLOAD_SIZE, sizeof(struct pcn_kmsg_hdr), sizeof(struct pcn_kmsg_test_message));
 
 #ifndef PCN_TEST_SYSCALL
 	printk("Registering control device /dev/%s\n", DEV_NAME);
