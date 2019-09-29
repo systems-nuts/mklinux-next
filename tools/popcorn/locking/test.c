@@ -277,6 +277,7 @@ int main(int argc, char **argv)
     pthread_attr_destroy(&attr);
 
 	printf("\n");
+printf("cpu %d cur %d\n", cpus, cur);
 	
 	//timer ? 
 
