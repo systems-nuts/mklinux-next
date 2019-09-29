@@ -3,8 +3,9 @@
 Thread 1 going to cpu 1
 going to barrier (cpu 1)
 
+cpu 2 cur 2
 STARTING...
 going to barrier (cpu 0)
 STOPPING...
 Duration      : 10000 (ms)
-Acquisitions  : 55983147
+Acquisitions  : 56284830
