@@ -123,7 +123,7 @@ void * test(void *args)
 	}
 	
 	//big while cycle to enter the critical section
-	printf("INTO THE LOOP cpu %d\n", tdata->cpu);
+//	printf("INTO THE LOOP cpu %d\n", tdata->cpu);
 	
 	while (!stop) {
 		TIMESTAMP(time1);
@@ -139,7 +139,7 @@ void * test(void *args)
 	}
 	tdata->count = me;
 	
-	printf("out THE LOOP cpu %d me %d\n", tdata->cpu, me);
+//	printf("out THE LOOP cpu %d me %d\n", tdata->cpu, me);
 	
 exit_thread:
 	return 0;
@@ -204,7 +204,7 @@ int main(int argc, char **argv)
     }
 	
 	//initialize barrier 
-	ret = pthread_barrier_init(&barrier, NULL, cpus); // barrier_init(&barrier, num_threads + 1);  TODO
+	ret = pthread_barrier_init(&barrier, NULL, cpus +1); // barrier_init(&barrier, num_threads + 1); 
     if (ret != 0) {
         perror("pthread_barrier_init error");
 		exit(1);
@@ -293,7 +293,7 @@ int main(int argc, char **argv)
 #endif
 
     /* Start threads */
-    //pthread_barrier_wait(&barrier); // TODO
+    pthread_barrier_wait(&barrier);
 	
     gettimeofday(&start, NULL);
     if (duration > 0) {
