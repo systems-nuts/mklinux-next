@@ -6,7 +6,10 @@
  * (C) Ben Shelton <beshelto@vt.edu> 2012
  */
 
-#define POPCORN_MAX_CPUS 64
+// TODO put it as a configuration parameter somewhere in the Linux kernel
+//#define POPCORN_MAX_CPUS 64
+
+#define POPCORN_MAX_CPUS 256
 
 extern int mklinux_boot;
 

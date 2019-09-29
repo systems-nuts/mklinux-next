@@ -57,15 +57,24 @@ extern volatile unsigned long int_ts;
 extern volatile unsigned long isr_ts, isr_ts_2;
 extern volatile unsigned long bh_ts, bh_ts_2;
 
+// TODO this is terrible need to put an array or something else ...
+
 /* NOTE mapping for pingpong (can be mixed between sender and receiver? I don't think so at the moment)
  * send_ts = send (snd)
- * ts0 = pong intr (snd)
+ * ts0 = int_ts		before sending interrupt (snd)
+ * 		end ipi_send
  * ts1 = isr_ts		interrupt handler (rcv)
  * ts2 = isr_ts_2	interrupt handler (rcv)
  * ts3 = bh_ts		workqueue (rcv)
  * ts4 = bh_ts_2	workqueue (rcv)
- * ts5 = handler_ts	(rcv)
+ * ts5 = handler_ts	(rcv-local_var)
  * rtt = kmsg_tsc (snd)
+ * 
+ * ts6 = int_ts		before sending interrupt (rcv)
+ * ts7 = isr_ts		interrupt handler (snd)
+ * ts8 = isr_ts_2	interrupt handler (snd)
+ * ts9 = bh_ts		workqueue (rcv)
+ * ts10= bs_ts_2	workqueue (rcv)
  */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,7 +109,7 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 {
 	int rc = 0;
 	struct pcn_kmsg_test_message msg;
-	unsigned long ts_start, ts_end;
+	unsigned long ts_start, ts_end, __int_ts;
 	unsigned long loopout;
 
 	msg.hdr.type = PCN_KMSG_TYPE_TEST;
@@ -114,6 +123,7 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	ts_start = rdtsc();
 	rc = pcn_kmsg_send(args->cpu, (struct pcn_kmsg_message *) &msg);
 	ts_end = rdtsc();
+	__int_ts = int_ts;
 
 	if (rc < 0)
 		return -EBUSY; // need to rework the error codes TODO
@@ -125,13 +135,19 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	TEST_PRINTK("pp returned %d Elapsed time (ticks): %lu (%x) loopout: %lu (to CPU %d)\n", rc, kmsg_tsc - ts_start, kmsg_done, loopout, msg.dest_cpu);
 
 	args->send_ts = ts_start;
-	args->ts0 = int_ts;
+	args->ts0 = __int_ts;
 	args->ts1 = ts1;
 	args->ts2 = ts2;
 	args->ts3 = ts3;
 	args->ts4 = ts4;
 	args->ts5 = ts5;
 	args->rtt = kmsg_tsc;
+	
+	args->ts6 = int_ts; //receiver side
+	args->ts7 = isr_ts;
+	args->ts8 = isr_ts_2;
+	args->ts9 = bh_ts;
+	args->ts10 = bh_ts_2;
 
 	TEST_PRINTK("Received ping-pong = %lu %lu [[%lu %lu %lu %lu %lu]] %lu\n",
 			ts_start, int_ts,

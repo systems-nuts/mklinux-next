@@ -35,6 +35,12 @@ struct pcn_kmsg_test_args {
 	unsigned long ts4;
 	unsigned long ts5;
 	unsigned long rtt;
+	
+	unsigned long ts6;
+	unsigned long ts7;
+	unsigned long ts8;
+	unsigned long ts9;
+	unsigned long ts10;
 };
 
 /* MESSAGE TYPES */
@@ -47,7 +53,7 @@ struct pcn_kmsg_test_message {
 	unsigned long batch_size; */
 	unsigned long ts1, ts2, ts3, ts4, ts5;
 	unsigned long batch_seqnum;
-        unsigned long batch_size;
+	unsigned long batch_size;
 	//char pad[16];
 }__attribute__((packed)) __attribute__((aligned(64)));
 
