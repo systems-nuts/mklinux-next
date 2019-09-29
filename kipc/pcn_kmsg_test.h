@@ -43,9 +43,11 @@ struct pcn_kmsg_test_message {
 	struct pcn_kmsg_hdr hdr;
 	enum pcn_kmsg_test_op op;
 	short src_cpu, dest_cpu; // needed to support clustering
-	unsigned long batch_seqnum;
-	unsigned long batch_size;
+/*	unsigned long batch_seqnum;
+	unsigned long batch_size; */
 	unsigned long ts1, ts2, ts3, ts4, ts5;
+	unsigned long batch_seqnum;
+        unsigned long batch_size;
 	//char pad[16];
 }__attribute__((packed)) __attribute__((aligned(64)));
 

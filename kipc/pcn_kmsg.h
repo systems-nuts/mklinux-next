@@ -146,7 +146,7 @@ enum pcn_kmsg_prio {
 #define __READY_SIZE 1
 #define LG_SEQNUM_SIZE  (16 - __READY_SIZE)
 
-#if 1
+#if 0
 /* Message header */
 struct pcn_kmsg_hdr {
 	unsigned char from_cpu;	// b0
@@ -158,7 +158,7 @@ struct pcn_kmsg_hdr {
 
 	unsigned long long_number; // b3 .. b10
 	
-	unsigned short lg_seq;	//WAS unsigned int lg_seqnum 	:LG_SEQNUM_SIZE; // b11 .. b12
+	unsigned short lg_seqnum;	//WAS unsigned int lg_seqnum 	:LG_SEQNUM_SIZE; // b11 .. b12
 	unsigned short __ready; //WAS unsigned int __ready	:__READY_SIZE;
 }__attribute__((packed));
 #else // original that doesn't work because of bitfields

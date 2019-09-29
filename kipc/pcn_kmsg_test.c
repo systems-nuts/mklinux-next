@@ -133,7 +133,7 @@ static int pcn_kmsg_test_send_pingpong(struct pcn_kmsg_test_args __user *args)
 	args->ts5 = ts5;
 	args->rtt = kmsg_tsc;
 
-	printk("Received ping-pong = %lu %lu [[%lu %lu %lu %lu %lu]] %lu\n",
+	TEST_PRINTK("Received ping-pong = %lu %lu [[%lu %lu %lu %lu %lu]] %lu\n",
 			ts_start, int_ts,
 			ts1, ts2, ts3, ts4, ts5, 
 			kmsg_tsc);
@@ -342,7 +342,7 @@ static int handle_pingpong_msg(struct pcn_kmsg_test_message *msg)
 			return -1;
 		}
 
-		printk("pingpong handler %lu %lu %lu  %lu %lu CPU %d now CPU %d\n",
+		TEST_PRINTK("pingpong handler %lu %lu %lu  %lu %lu CPU %d now CPU %d\n",
 				isr_ts, isr_ts_2, bh_ts, bh_ts_2, handler_ts, msg->dest_cpu, raw_smp_processor_id());
 		
 		isr_ts = isr_ts_2 = bh_ts = bh_ts_2 = 0;
@@ -714,7 +714,7 @@ static int __init pcn_kmsg_test_init(void)
 {
 	int rc;
 
-	printk("hdr %ld payload %ld test %ld\n",
+	printk("payload %ld hdr %ld (64) test %ld\n",
 		PCN_KMSG_PAYLOAD_SIZE, sizeof(struct pcn_kmsg_hdr), sizeof(struct pcn_kmsg_test_message));
 
 #ifndef PCN_TEST_SYSCALL
