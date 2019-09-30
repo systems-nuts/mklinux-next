@@ -239,10 +239,10 @@ int main(int argc, char **argv)
 	
 	cur=0;
 	for (i = 0; i<sizeof(set)/sizeof(unsigned long); i++) {
-		for (l = 0; l<(sizeof(set)*8); l++) {
+		for (l = 0; l<(sizeof(unsigned long)*8); l++) {
 			if ( ((unsigned long*)&set)[i] & 0x1 ) {
 				// need to load a thread on this CPU id
-				int cpu = (i*sizeof(set)*8)+l;
+				int cpu = (i*sizeof(unsigned long)*8)+l;
 				printf("%d ", cpu);
 				
 				// check if we are doing something wrong, if not, start thread
