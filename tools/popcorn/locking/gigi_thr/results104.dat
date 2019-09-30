@@ -1,0 +1,215 @@
+ffffffffffffffff:ffffffffff:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 104)
+0 1 2 3 Thread 0 going to cpu 0
+4 Thread 1 going to cpu 1
+Thread 2 going to cpu 2
+5 Thread 4 going to cpu 4
+Thread 3 going to cpu 3
+6 Thread 5 going to cpu 5
+going to barrier (cpu 0)
+going to barrier (cpu 4)
+going to barrier (cpu 1)
+going to barrier (cpu 3)
+7 Thread 6 going to cpu 6
+going to barrier (cpu 2)
+going to barrier (cpu 5)
+8 Thread 7 going to cpu 7
+9 Thread 8 going to cpu 8
+going to barrier (cpu 6)
+Thread 9 going to cpu 9
+going to barrier (cpu 7)
+10 going to barrier (cpu 8)
+going to barrier (cpu 9)
+11 Thread 10 going to cpu 10
+12 Thread 11 going to cpu 11
+13 Thread 12 going to cpu 12
+going to barrier (cpu 10)
+14 going to barrier (cpu 12)
+Thread 13 going to cpu 13
+going to barrier (cpu 11)
+15 Thread 14 going to cpu 14
+16 Thread 15 going to cpu 15
+17 Thread 16 going to cpu 16
+going to barrier (cpu 14)
+going to barrier (cpu 13)
+18 Thread 17 going to cpu 17
+going to barrier (cpu 16)
+going to barrier (cpu 15)
+19 Thread 18 going to cpu 18
+20 Thread 19 going to cpu 19
+21 Thread 20 going to cpu 20
+going to barrier (cpu 17)
+going to barrier (cpu 18)
+22 Thread 21 going to cpu 21
+going to barrier (cpu 20)
+going to barrier (cpu 19)
+23 Thread 22 going to cpu 22
+24 going to barrier (cpu 21)
+25 Thread 23 going to cpu 23
+Thread 24 going to cpu 24
+going to barrier (cpu 22)
+26 Thread 25 going to cpu 25
+going to barrier (cpu 24)
+going to barrier (cpu 23)
+27 Thread 26 going to cpu 26
+28 Thread 27 going to cpu 27
+29 Thread 28 going to cpu 28
+going to barrier (cpu 25)
+30 Thread 29 going to cpu 29
+going to barrier (cpu 26)
+going to barrier (cpu 27)
+going to barrier (cpu 28)
+Thread 30 going to cpu 30
+31 32 Thread 31 going to cpu 31
+going to barrier (cpu 29)
+going to barrier (cpu 30)
+33 going to barrier (cpu 31)
+Thread 32 going to cpu 32
+34 Thread 33 going to cpu 33
+going to barrier (cpu 33)
+35 Thread 34 going to cpu 34
+going to barrier (cpu 34)
+36 Thread 35 going to cpu 35
+going to barrier (cpu 35)
+37 Thread 36 going to cpu 36
+going to barrier (cpu 36)
+38 Thread 37 going to cpu 37
+39 going to barrier (cpu 37)
+Thread 38 going to cpu 38
+going to barrier (cpu 38)
+40 Thread 39 going to cpu 39
+going to barrier (cpu 39)
+Thread 40 going to cpu 40
+going to barrier (cpu 32)
+41 going to barrier (cpu 40)
+42 Thread 41 going to cpu 41
+going to barrier (cpu 41)
+43 Thread 42 going to cpu 42
+going to barrier (cpu 42)
+44 Thread 43 going to cpu 43
+going to barrier (cpu 43)
+45 Thread 44 going to cpu 44
+going to barrier (cpu 44)
+46 Thread 45 going to cpu 45
+47 going to barrier (cpu 45)
+Thread 46 going to cpu 46
+going to barrier (cpu 46)
+48 Thread 47 going to cpu 47
+49 Thread 48 going to cpu 48
+going to barrier (cpu 47)
+going to barrier (cpu 48)
+50 Thread 49 going to cpu 49
+going to barrier (cpu 49)
+51 Thread 50 going to cpu 50
+going to barrier (cpu 50)
+52 Thread 51 going to cpu 51
+going to barrier (cpu 51)
+53 Thread 52 going to cpu 52
+going to barrier (cpu 52)
+54 Thread 53 going to cpu 53
+55 Thread 54 going to cpu 54
+going to barrier (cpu 53)
+going to barrier (cpu 54)
+56 Thread 55 going to cpu 55
+going to barrier (cpu 55)
+57 Thread 56 going to cpu 56
+going to barrier (cpu 56)
+58 Thread 57 going to cpu 57
+59 going to barrier (cpu 57)
+Thread 58 going to cpu 58
+60 going to barrier (cpu 58)
+Thread 59 going to cpu 59
+going to barrier (cpu 59)
+61 Thread 60 going to cpu 60
+going to barrier (cpu 60)
+62 Thread 61 going to cpu 61
+63 going to barrier (cpu 61)
+Thread 62 going to cpu 62
+64 going to barrier (cpu 62)
+Thread 63 going to cpu 63
+going to barrier (cpu 63)
+65 Thread 64 going to cpu 64
+going to barrier (cpu 64)
+66 Thread 65 going to cpu 65
+67 Thread 66 going to cpu 66
+going to barrier (cpu 65)
+going to barrier (cpu 66)
+Thread 67 going to cpu 67
+68 going to barrier (cpu 67)
+69 Thread 68 going to cpu 68
+going to barrier (cpu 68)
+70 Thread 69 going to cpu 69
+71 going to barrier (cpu 69)
+Thread 70 going to cpu 70
+72 Thread 71 going to cpu 71
+73 Thread 72 going to cpu 72
+74 Thread 73 going to cpu 73
+going to barrier (cpu 71)
+going to barrier (cpu 72)
+going to barrier (cpu 70)
+75 Thread 74 going to cpu 74
+76 Thread 75 going to cpu 75
+going to barrier (cpu 73)
+77 Thread 76 going to cpu 76
+78 Thread 77 going to cpu 77
+79 going to barrier (cpu 74)
+Thread 78 going to cpu 78
+going to barrier (cpu 75)
+going to barrier (cpu 76)
+80 Thread 79 going to cpu 79
+going to barrier (cpu 77)
+81 Thread 80 going to cpu 80
+going to barrier (cpu 78)
+82 Thread 81 going to cpu 81
+going to barrier (cpu 80)
+83 Thread 82 going to cpu 82
+going to barrier (cpu 79)
+84 Thread 83 going to cpu 83
+85 Thread 84 going to cpu 84
+going to barrier (cpu 82)
+86 Thread 85 going to cpu 85
+going to barrier (cpu 81)
+going to barrier (cpu 83)
+87 going to barrier (cpu 84)
+Thread 86 going to cpu 86
+going to barrier (cpu 85)
+88 Thread 87 going to cpu 87
+89 going to barrier (cpu 86)
+Thread 88 going to cpu 88
+90 Thread 89 going to cpu 89
+91 Thread 90 going to cpu 90
+going to barrier (cpu 88)
+going to barrier (cpu 87)
+92 Thread 91 going to cpu 91
+going to barrier (cpu 89)
+93 Thread 92 going to cpu 92
+going to barrier (cpu 90)
+94 Thread 93 going to cpu 93
+going to barrier (cpu 91)
+95 Thread 94 going to cpu 94
+going to barrier (cpu 92)
+going to barrier (cpu 93)
+96 Thread 95 going to cpu 95
+97 Thread 96 going to cpu 96
+98 Thread 97 going to cpu 97
+going to barrier (cpu 94)
+going to barrier (cpu 95)
+99 Thread 98 going to cpu 98
+going to barrier (cpu 96)
+100 Thread 99 going to cpu 99
+going to barrier (cpu 97)
+101 Thread 100 going to cpu 100
+102 Thread 101 going to cpu 101
+going to barrier (cpu 99)
+going to barrier (cpu 98)
+103 Thread 102 going to cpu 102
+Thread 103 going to cpu 103
+
+cpu 104 cur 104
+going to barrier (cpu 101)
+STARTING...
+going to barrier (cpu 100)
+going to barrier (cpu 102)
+going to barrier (cpu 103)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 650992

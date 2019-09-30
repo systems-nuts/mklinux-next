@@ -1,0 +1,17 @@
+1f:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 5)
+0 1 2 3 Thread 0 going to cpu 0
+4 Thread 1 going to cpu 1
+Thread 4 going to cpu 4
+
+cpu 5 cur 5
+STARTING...
+going to barrier (cpu 0)
+going to barrier (cpu 4)
+Thread 3 going to cpu 3
+Thread 2 going to cpu 2
+going to barrier (cpu 1)
+going to barrier (cpu 2)
+going to barrier (cpu 3)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 8027864
