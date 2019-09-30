@@ -1,12 +1,13 @@
 7:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 3)
-0 1 2 Thread 0 going to cpu 0
+0 1 2 
+cpu 3 cur 3
+STARTING...
+Thread 2 going to cpu 2
 Thread 1 going to cpu 1
 going to barrier (cpu 1)
-Thread 2 going to cpu 2
-going to barrier (cpu 2)
-
-STARTING...
+Thread 0 going to cpu 0
 going to barrier (cpu 0)
+going to barrier (cpu 2)
 STOPPING...
 Duration      : 10000 (ms)
-Acquisitions  : 28284854
+Acquisitions  : 29200865
