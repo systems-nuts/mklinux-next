@@ -10,6 +10,12 @@ command -v ../lstopo.py >/dev/null 2>&1 || { echo >&2 "lstopo.py is required but
 
 for CPUS in `seq 1 144` ; do
   MASK=`python -c "print (hex(2 ** $CPUS -1))" | sed 's/L//g'`
-  echo "running $CPUS with $MASK"
-#  taskset $MASK ./test > results$CPUS.dat
+  TEST_MASK=`python -c "value=((2 ** $CPUS -1))
+count=0
+while (value):
+  count+=value&1
+  value >>=1
+print(count)"`
+  echo "running $CPUS with $MASK and $TEST_MASK"
+  taskset $MASK ./test > results$CPUS.dat
 done
