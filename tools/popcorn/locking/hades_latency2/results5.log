@@ -1,0 +1,19 @@
+707:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 6)
+0 1 Thread 0 going to cpu 0
+2 Thread 1 going to cpu 1
+8 Thread 2 going to cpu 2
+9 Thread 3 going to cpu 8
+going to barrier (cpu 1)
+going to barrier (cpu 2)
+going to barrier (cpu 8)
+going to barrier (cpu 0)
+10 Thread 4 going to cpu 9
+going to barrier (cpu 9)
+Thread 5 going to cpu 10
+going to barrier (cpu 10)
+
+cpu 6 cur 6
+STARTING...
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 27909279

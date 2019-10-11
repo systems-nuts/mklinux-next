@@ -1,0 +1,11 @@
+101:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 2)
+0 8 Thread 0 going to cpu 0
+Thread 1 going to cpu 8
+going to barrier (cpu 8)
+
+cpu 2 cur 2
+STARTING...
+going to barrier (cpu 0)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 87757758

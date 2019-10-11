@@ -1,0 +1,21 @@
+7f:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 7)
+0 1 2 Thread 0 going to cpu 0
+3 Thread 1 going to cpu 1
+4 Thread 3 going to cpu 3
+Thread 2 going to cpu 2
+5 going to barrier (cpu 3)
+Thread 4 going to cpu 4
+going to barrier (cpu 0)
+going to barrier (cpu 1)
+going to barrier (cpu 2)
+going to barrier (cpu 4)
+6 Thread 6 going to cpu 6
+Thread 5 going to cpu 5
+going to barrier (cpu 6)
+
+cpu 7 cur 7
+STARTING...
+going to barrier (cpu 5)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 12604608

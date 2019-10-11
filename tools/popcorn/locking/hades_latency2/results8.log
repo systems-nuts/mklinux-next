@@ -1,0 +1,25 @@
+f1f:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 9)
+0 1 2 3 Thread 1 going to cpu 1
+Thread 0 going to cpu 0
+Thread 2 going to cpu 2
+4 8 going to barrier (cpu 1)
+Thread 4 going to cpu 4
+going to barrier (cpu 2)
+Thread 3 going to cpu 3
+going to barrier (cpu 4)
+going to barrier (cpu 0)
+going to barrier (cpu 3)
+9 Thread 5 going to cpu 8
+going to barrier (cpu 8)
+10 Thread 6 going to cpu 9
+going to barrier (cpu 9)
+11 Thread 7 going to cpu 10
+going to barrier (cpu 10)
+Thread 8 going to cpu 11
+going to barrier (cpu 11)
+
+cpu 9 cur 9
+STARTING...
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 15047750

@@ -1,0 +1,37 @@
+7fff:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 15)
+0 1 2 Thread 0 going to cpu 0
+3 Thread 1 going to cpu 1
+4 Thread 2 going to cpu 2
+Thread 3 going to cpu 3
+going to barrier (cpu 0)
+going to barrier (cpu 2)
+going to barrier (cpu 3)
+Thread 4 going to cpu 4
+going to barrier (cpu 1)
+going to barrier (cpu 4)
+5 6 7 Thread 5 going to cpu 5
+8 Thread 6 going to cpu 6
+going to barrier (cpu 5)
+Thread 7 going to cpu 7
+going to barrier (cpu 6)
+9 Thread 8 going to cpu 8
+10 going to barrier (cpu 8)
+Thread 9 going to cpu 9
+going to barrier (cpu 9)
+11 Thread 10 going to cpu 10
+going to barrier (cpu 10)
+12 Thread 11 going to cpu 11
+going to barrier (cpu 11)
+13 Thread 12 going to cpu 12
+going to barrier (cpu 12)
+14 Thread 13 going to cpu 13
+going to barrier (cpu 13)
+Thread 14 going to cpu 14
+going to barrier (cpu 14)
+
+cpu 15 cur 15
+STARTING...
+going to barrier (cpu 7)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 10195854

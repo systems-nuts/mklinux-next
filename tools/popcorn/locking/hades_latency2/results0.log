@@ -1,0 +1,9 @@
+1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0: (total 1)
+0 
+cpu 1 cur 1
+STARTING...
+Thread 0 going to cpu 0
+going to barrier (cpu 0)
+STOPPING...
+Duration      : 10000 (ms)
+Acquisitions  : 256725758
