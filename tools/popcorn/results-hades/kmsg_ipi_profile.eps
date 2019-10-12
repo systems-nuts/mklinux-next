@@ -1,9 +1,9 @@
 %!PS-Adobe-2.0 EPSF-2.0
-%%Title: latency.eps
+%%Title: kmsg_ipi_profile.eps
 %%Creator: gnuplot 5.0 patchlevel 5
-%%CreationDate: Sat Oct 12 14:17:20 2019
+%%CreationDate: Sat Oct 12 14:45:15 2019
 %%DocumentFonts: (atend)
-%%BoundingBox: 50 50 410 302
+%%BoundingBox: 50 50 410 410
 %%EndComments
 %%BeginProlog
 /gnudict 256 dict def
@@ -28,7 +28,7 @@ gnudict begin
 /Gamma 1.0 def
 /BackgroundColor {-1.000 -1.000 -1.000} def
 %
-/vshift -46 def
+/vshift -66 def
 /dl1 {
   10.0 Dashlength userlinewidth gnulinewidth div mul mul mul
   Rounded { currentlinewidth 0.75 mul sub dup 0 le { pop 0.01 } if } if
@@ -43,7 +43,7 @@ gnudict begin
 /vpt vpt_ def
 /doclip {
   ClipToBoundingBox {
-    newpath 50 50 moveto 410 50 lineto 410 302 lineto 50 302 lineto closepath
+    newpath 50 50 moveto 410 50 lineto 410 410 lineto 50 410 lineto closepath
     clip
   } if
 } def
@@ -464,12 +464,12 @@ systemdict /pdfmark known not {
   userdict /pdfmark systemdict /cleartomark get put
 } if
 SDict begin [
-  /Title (latency.eps)
+  /Title (kmsg_ipi_profile.eps)
   /Subject (gnuplot plot)
   /Creator (gnuplot 5.0 patchlevel 5)
 %  /Producer (gnuplot)
 %  /Keywords ()
-  /CreationDate (Sat Oct 12 14:17:20 2019)
+  /CreationDate (Sat Oct 12 14:45:15 2019)
   /DOCINFO pdfmark
 end
 } ifelse
@@ -511,927 +511,564 @@ doclip
 0.050 0.050 scale
 0 setgray
 newpath
-(Helvetica) findfont 140 scalefont setfont
-BackgroundColor 0 lt 3 1 roll 0 lt exch 0 lt or or not {BackgroundColor C 1.000 0 0 7200.00 5040.00 BoxColFill} if
+(Helvetica) findfont 200 scalefont setfont
+BackgroundColor 0 lt 3 1 roll 0 lt exch 0 lt or or not {BackgroundColor C 1.000 0 0 7200.00 7200.00 BoxColFill} if
+gsave % colour palette begin
+/maxcolors 0 def
+/HSV2RGB {  exch dup 0.0 eq {pop exch pop dup dup} % achromatic gray
+  { /HSVs exch def /HSVv exch def 6.0 mul dup floor dup 3 1 roll sub
+     /HSVf exch def /HSVi exch cvi def /HSVp HSVv 1.0 HSVs sub mul def
+	 /HSVq HSVv 1.0 HSVs HSVf mul sub mul def 
+	 /HSVt HSVv 1.0 HSVs 1.0 HSVf sub mul sub mul def
+	 /HSVi HSVi 6 mod def 0 HSVi eq {HSVv HSVt HSVp}
+	 {1 HSVi eq {HSVq HSVv HSVp}{2 HSVi eq {HSVp HSVv HSVt}
+	 {3 HSVi eq {HSVp HSVq HSVv}{4 HSVi eq {HSVt HSVp HSVv}
+	 {HSVv HSVp HSVq} ifelse} ifelse} ifelse} ifelse} ifelse
+  } ifelse} def
+/Constrain {
+  dup 0 lt {0 exch pop}{dup 1 gt {1 exch pop} if} ifelse} def
+/YIQ2RGB {
+  3 copy -1.702 mul exch -1.105 mul add add Constrain 4 1 roll
+  3 copy -0.647 mul exch -0.272 mul add add Constrain 5 1 roll
+  0.621 mul exch -0.956 mul add add Constrain 3 1 roll } def
+/CMY2RGB {  1 exch sub exch 1 exch sub 3 2 roll 1 exch sub 3 1 roll exch } def
+/XYZ2RGB {  3 copy -0.9017 mul exch -0.1187 mul add exch 0.0585 mul exch add
+  Constrain 4 1 roll 3 copy -0.0279 mul exch 1.999 mul add exch
+  -0.9844 mul add Constrain 5 1 roll -0.2891 mul exch -0.5338 mul add
+  exch 1.91 mul exch add Constrain 3 1 roll} def
+/SelectSpace {ColorSpace (HSV) eq {HSV2RGB}{ColorSpace (XYZ) eq {
+  XYZ2RGB}{ColorSpace (CMY) eq {CMY2RGB}{ColorSpace (YIQ) eq {YIQ2RGB}
+  if} ifelse} ifelse} ifelse} def
+/InterpolatedColor false def
+/cF7 {sqrt} bind def	% sqrt(x)
+/cF5 {dup dup mul mul} bind def	% x^3
+/cF15 {360 mul sin} bind def	% sin(360x)
+/pm3dround {maxcolors 0 gt {dup 1 ge
+	{pop 1} {maxcolors mul floor maxcolors 1 sub div} ifelse} if} def
+/pm3dGamma 1.0 1.5 Gamma mul div def
+/ColorSpace (RGB) def
+Color InterpolatedColor or { % COLOUR vs. GRAY map
+  InterpolatedColor { %% Interpolation vs. RGB-Formula
+    /g {stroke pm3dround /grayv exch def interpolate
+        SelectSpace setrgbcolor} bind def
+  }{
+  /g {stroke pm3dround dup cF7 Constrain exch dup cF5 Constrain exch cF15 Constrain 
+       SelectSpace setrgbcolor} bind def
+  } ifelse
+}{
+  /g {stroke pm3dround pm3dGamma exp setgray} bind def
+} ifelse
 1.000 UL
 LTb
 LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-938 448 M
-6009 0 V
-stroke
-1.000 UL
-LTb
 LCb setrgbcolor
-938 448 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 448 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 0.001)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 594 M
-31 0 V
-5978 0 R
--31 0 V
-938 788 M
-31 0 V
-5978 0 R
--31 0 V
-938 887 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 934 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 934 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 934 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 0.01)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 1081 M
-31 0 V
-5978 0 R
--31 0 V
-938 1274 M
-31 0 V
-5978 0 R
--31 0 V
-938 1374 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 1421 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 1421 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 1421 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 0.1)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 1567 M
-31 0 V
-5978 0 R
--31 0 V
-938 1761 M
-31 0 V
-5978 0 R
--31 0 V
-938 1860 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 1907 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 1907 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 1907 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 1)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 2054 M
-31 0 V
-5978 0 R
--31 0 V
-938 2247 M
-31 0 V
-5978 0 R
--31 0 V
-938 2346 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 2394 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 2394 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 2394 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 10)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 2540 M
-31 0 V
-5978 0 R
--31 0 V
-938 2733 M
-31 0 V
-5978 0 R
--31 0 V
-938 2833 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 2880 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 2880 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 2880 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 100)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 3026 M
-31 0 V
-5978 0 R
--31 0 V
-938 3220 M
-31 0 V
-5978 0 R
--31 0 V
-938 3319 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 3366 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 3366 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 3366 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 1000)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 3513 M
-31 0 V
-5978 0 R
--31 0 V
-938 3706 M
-31 0 V
-5978 0 R
--31 0 V
-938 3805 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 3853 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 3853 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 3853 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 10000)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-938 3999 M
-31 0 V
-5978 0 R
--31 0 V
-938 4193 M
-31 0 V
-5978 0 R
--31 0 V
-938 4292 M
-31 0 V
-5978 0 R
--31 0 V
-stroke
-0.500 UL
-LTa
-LCa setrgbcolor
-938 4339 M
-6009 0 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-938 4339 M
-63 0 V
-5946 0 R
--63 0 V
-stroke
-854 4339 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 100000)]
-] -46.7 MRshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-1291 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-1291 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-1291 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 0)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-1998 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-1998 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-1998 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 2)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-2705 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-2705 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-2705 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 4)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-3412 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-3412 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-3412 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 6)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-4119 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-4119 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-4119 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 8)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-4826 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-4826 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-4826 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 10)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-5533 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-5533 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-5533 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 12)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-6240 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-6240 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-6240 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 14)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-0.500 UL
-LTa
-LCa setrgbcolor
-6947 448 M
-0 3891 V
-stroke
-1.000 UL
-LTb
-LCb setrgbcolor
-6947 448 M
-0 63 V
-0 3828 R
-0 -63 V
-stroke
-6947 308 M
-[ [(Helvetica) 140.0 0.0 true true 0 ( 16)]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-1.000 UL
-LTB
-LCb setrgbcolor
-938 4339 N
-938 448 L
-6009 0 V
-0 3891 V
--6009 0 V
-Z stroke
+3600 6422 M
+[ [(Helvetica) 200.0 0.0 true true 0 (IPI latency between CPU-threads \(usec\))]
+] -66.7 MCshow
 1.000 UP
+% Begin plot #1
+LCb setrgbcolor
+/Helvetica findfont 200 scalefont setfont
+/vshift -66 def
+5438 5959 M
+('kmsg_ipi_prof.dat' matrix) Rshow
+1.000 UL
+LTb
+0.58 0.00 0.83 C %%%%BeginImage
+gsave 916 1078 N 916 6122 L 6284 6122 L 6284 1078 L Z clip
+InterpretLevel1 {
+  %% Construct a box instead of image
+  LTb
+  916 6122 M
+  5367 0 V
+  0 -5045 V
+  -5367 0 V
+  916 6122 L
+  40 -110 R
+  (PS level 2 image) Lshow
+  % Read data but ignore it
+  /imagebuf 326 string def
+  currentfile imagebuf readstring
+} {
+gsave
+916 6122 translate
+5367 -5045 scale
+%%%%BeginPalette
+[ /Indexed
+  /DeviceRGB 255
+  <
+   000000 100006 17000d 1c0013 200019 24001f 270026 2a002c
+   2d0032 300038 32003e 350044 37004a 3a0050 3c0056 3e005c
+   400062 420068 44006d 460073 470079 49007e 4b0084 4d0089
+   4e008e 500093 510098 53009d 5400a2 5600a7 5700ac 5900b0
+   5a01b5 5c01b9 5d01be 5e01c2 6001c6 6101ca 6201cd 6401d1
+   6501d5 6601d8 6701db 6901de 6a01e1 6b01e4 6c01e7 6d02ea
+   6f02ec 7002ee 7102f1 7202f3 7302f4 7402f6 7502f8 7603f9
+   7703fa 7903fb 7a03fc 7b03fd 7c03fe 7d03fe 7e04ff 7f04ff
+   8004ff 8104ff 8204ff 8305fe 8405fe 8505fd 8605fc 8706fb
+   8706fa 8806f8 8906f7 8a06f5 8b07f3 8c07f2 8d07ef 8e08ed
+   8f08eb 9008e8 9108e6 9109e3 9209e0 9309dd 940ada 950ad6
+   960ad3 970bcf 970bcb 980cc8 990cc4 9a0cc0 9b0dbb 9c0db7
+   9c0eb3 9d0eae 9e0ea9 9f0fa5 a00fa0 a0109b a11096 a21191
+   a3118c a41286 a41281 a5137b a61376 a71470 a7146b a81565
+   a9165f aa1659 aa1753 ab174d ac1847 ad1941 ad193b ae1a35
+   af1b2f b01b29 b01c22 b11d1c b21d16 b31e10 b31f09 b42003
+   b52000 b52100 b62200 b72300 b72300 b82400 b92500 ba2600
+   ba2700 bb2800 bc2800 bc2900 bd2a00 be2b00 be2c00 bf2d00
+   c02e00 c02f00 c13000 c23100 c23200 c33300 c43400 c43500
+   c53600 c63700 c63800 c73900 c73a00 c83c00 c93d00 c93e00
+   ca3f00 cb4000 cb4100 cc4300 cc4400 cd4500 ce4600 ce4800
+   cf4900 d04a00 d04c00 d14d00 d14e00 d25000 d35100 d35200
+   d45400 d45500 d55700 d65800 d65a00 d75b00 d75d00 d85e00
+   d96000 d96100 da6300 da6500 db6600 dc6800 dc6900 dd6b00
+   dd6d00 de6f00 de7000 df7200 e07400 e07600 e17700 e17900
+   e27b00 e27d00 e37f00 e48100 e48300 e58400 e58600 e68800
+   e68a00 e78c00 e78e00 e89000 e99300 e99500 ea9700 ea9900
+   eb9b00 eb9d00 ec9f00 eca200 eda400 eda600 eea800 eeab00
+   efad00 f0af00 f0b200 f1b400 f1b600 f2b900 f2bb00 f3be00
+   f3c000 f4c300 f4c500 f5c800 f5ca00 f6cd00 f6cf00 f7d200
+   f7d500 f8d700 f8da00 f9dd00 f9df00 fae200 fae500 fbe800
+   fbeb00 fced00 fcf000 fdf300 fdf600 fef900 fefc00 ffff00
+  >
+] setcolorspace
+%%%%EndPalette
+<<
+  /ImageType 1
+  /Width 16
+  /Height 16
+  /BitsPerComponent 8
+  /ImageMatrix [ 16 0 0 16 0 0 ]
+  /Decode [ 0 255 ]
+  /DataSource currentfile /ASCII85Decode filter
+  /MultipleDataSources false
+  /Interpolate false
+>>
+image
+} ifelse
+\;.Dm^V-br^5KhLXhYqWR!c]a^;HMTGcRUQ]Y4@eFK2OY]rerK^:of'*WW:BC3HtY^:p,FXfIqn!$7
+`GW/ZUr\qu<Z]q6>GS;FtqYI]h+^7;mNW4r<OQE?[l\@INmX/*GA*rs$XOe].E]">eNZG!o?!$/kX^
+RL_,U9qbQV7dZF^okJg]t1n[R$PR-]YFL_RBO?;^;.ItMRgL9(BD+*^:_1l^;.IgZFdN/!$Ajd]tUM
+<^U:eG\Z[%S^UpQ\]tM+l^;.Is`bYVl^9##N]tV1^XgNtu*WV25XLl?M^V6eN^U:ej!$/beXM)?^XJ
+<S3^Vmh$~>
+InterpretLevel1 not {
+  grestore
+} if
+grestore
+%%%%EndImage
+% End plot #1
 1.000 UL
 LTb
 LCb setrgbcolor
+916 6122 N
+0 -5044 V
+5368 0 V
+0 5044 V
+-5368 0 V
+Z stroke
+1.000 UL
+LTb
 LCb setrgbcolor
-112 2393 M
+1084 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+1084 6122 M
+0 -89 V
+stroke
+1084 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 0)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+1755 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+1755 6122 M
+0 -89 V
+stroke
+1755 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 2)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+2426 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+2426 6122 M
+0 -89 V
+stroke
+2426 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 4)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+3097 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+3097 6122 M
+0 -89 V
+stroke
+3097 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 6)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+3767 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+3767 6122 M
+0 -89 V
+stroke
+3767 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 8)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+4438 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+4438 6122 M
+0 -89 V
+stroke
+4438 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 10)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+5110 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+5110 6122 M
+0 -89 V
+stroke
+5110 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 12)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+5781 1078 M
+0 89 V
+stroke
+LTb
+LCb setrgbcolor
+5781 6122 M
+0 -89 V
+stroke
+5781 793 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 14)]
+] -66.7 MCshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 1235 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 1235 M
+-90 0 V
+stroke
+745 1235 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 0)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 1866 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 1866 M
+-90 0 V
+stroke
+745 1866 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 2)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 2497 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 2497 M
+-90 0 V
+stroke
+745 2497 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 4)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 3127 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 3127 M
+-90 0 V
+stroke
+745 3127 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 6)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 3757 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 3757 M
+-90 0 V
+stroke
+745 3757 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 8)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 4388 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 4388 M
+-90 0 V
+stroke
+745 4388 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 10)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 5019 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 5019 M
+-90 0 V
+stroke
+745 5019 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 12)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+916 5649 M
+90 0 V
+stroke
+LTb
+LCb setrgbcolor
+6284 5649 M
+-90 0 V
+stroke
+745 5649 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 14)]
+] -66.7 MRshow
+1.000 UL
+LTb
+LCb setrgbcolor
+stroke gsave	%% draw gray scale smooth box
+maxcolors 0 gt {/imax maxcolors def} {/imax 1024 def} ifelse
+6418 1078 translate 269 5044 scale 0 setlinewidth
+/ystep 1 imax div def /y0 0 def /ii 0 def
+{ y0 g 0 y0 N 1 0 V 0 ystep V -1 0 f
+/y0 y0 ystep add def /ii ii 1 add def
+ii imax ge {exit} if } loop
+grestore 0 setgray
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 1078 N
+269 0 V
+0 5044 V
+-269 0 V
+0 -5044 V
+Z stroke
+1.000 UL
+LTb
+LCb setrgbcolor
+1.000 UL
+LTb
+LCb setrgbcolor
+6687 1198 M
+-63 0 V
+stroke
+6807 1198 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 0)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 1198 M
+63 0 V
+206 600 R
+-63 0 V
+stroke
+6807 1798 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 5)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 1798 M
+63 0 V
+206 601 R
+-63 0 V
+stroke
+6807 2399 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 10)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 2399 M
+63 0 V
+206 600 R
+-63 0 V
+stroke
+6807 2999 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 15)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 2999 M
+63 0 V
+206 601 R
+-63 0 V
+stroke
+6807 3600 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 20)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 3600 M
+63 0 V
+206 600 R
+-63 0 V
+stroke
+6807 4200 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 25)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 4200 M
+63 0 V
+206 600 R
+-63 0 V
+stroke
+6807 4800 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 30)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 4800 M
+63 0 V
+206 601 R
+-63 0 V
+stroke
+6807 5401 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 35)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 5401 M
+63 0 V
+206 600 R
+-63 0 V
+stroke
+6807 6001 M
+[ [(Helvetica) 200.0 0.0 true true 0 ( 40)]
+] -66.7 MLshow
+1.000 UL
+LTb
+LCb setrgbcolor
+6418 6001 M
+63 0 V
+stroke
+LCb setrgbcolor
+7227 3600 M
 currentpoint gsave translate -270 rotate 0 0 moveto
-[ [(Helvetica) 140.0 0.0 true true 0 (latency \(us\))]
-] -46.7 MCshow
+[ [(Helvetica) 200.0 0.0 true true 0 (useconds)]
+] -66.7 MCshow
 grestore
 LTb
-LCb setrgbcolor
-3942 98 M
-[ [(Helvetica) 140.0 0.0 true true 0 (threads/CPUs)]
-] -46.7 MCshow
-LTb
-LCb setrgbcolor
-3942 4549 M
-[ [(Helvetica) 140.0 0.0 true true 0 (hades CPU logical order \(tsc 2097580797.928105\))]
-] -46.7 MCshow
-1.000 UL
-LTb
-LCb setrgbcolor
-1328 4697 N
-0 280 V
-5229 0 V
-0 -280 V
--5229 0 V
-Z stroke
-% Begin plot #1
-1.000 UL
-LTb
-0.58 0.00 0.83 C LCb setrgbcolor
-2504 4907 M
-[ [(Helvetica) 140.0 0.0 true true 0 (min/5p/95p/max)]
-] -46.7 MRshow
-1.000 UL
-LTb
-0.58 0.00 0.83 C 1.000 2588 4872 399 70 BoxColFill
-2588 4872 N
-399 0 V
-0 70 V
--399 0 V
-0 -70 V
-Z stroke
-1.000 UL
-LTb
-0.58 0.00 0.83 C 1.000 1276 1134 30 49 BoxColFill
-1291 1134 M
-0 49 R
-0 12 V
-stroke
-1276 1134 N
-30 0 V
-0 49 V
--30 0 V
-0 -49 V
-Z stroke
-1.000 1630 1557 30 46 BoxColFill
-1645 1323 M
-0 234 V
-0 46 R
-0 900 V
-stroke
-1630 1557 N
-30 0 V
-0 46 V
--30 0 V
-0 -46 V
-Z stroke
-1.000 1983 1378 30 814 BoxColFill
-1998 1354 M
-0 24 V
-0 814 R
-0 432 V
-stroke
-1983 1378 N
-30 0 V
-0 814 V
--30 0 V
-0 -814 V
-Z stroke
-1.000 2337 1381 30 954 BoxColFill
-2352 1346 M
-0 35 V
-0 954 R
-0 389 V
-stroke
-2337 1381 N
-30 0 V
-0 954 V
--30 0 V
-0 -954 V
-Z stroke
-1.000 2690 1392 30 1117 BoxColFill
-2705 1358 M
-0 34 V
-0 1117 R
-0 320 V
-stroke
-2690 1392 N
-30 0 V
-0 1117 V
--30 0 V
-0 -1117 V
-Z stroke
-1.000 3044 1392 30 1373 BoxColFill
-3059 1354 M
-0 38 V
-0 1373 R
-0 448 V
-stroke
-3044 1392 N
-30 0 V
-0 1373 V
--30 0 V
-0 -1373 V
-Z stroke
-1.000 3397 1405 30 1438 BoxColFill
-3412 1354 M
-0 51 V
-0 1438 R
-0 726 V
-stroke
-3397 1405 N
-30 0 V
-0 1438 V
--30 0 V
-0 -1438 V
-Z stroke
-1.000 3751 1395 30 1557 BoxColFill
-3766 1328 M
-0 67 V
-0 1557 R
-0 831 V
-stroke
-3751 1395 N
-30 0 V
-0 1557 V
--30 0 V
-0 -1557 V
-Z stroke
-1.000 4104 1399 30 1825 BoxColFill
-4119 1358 M
-0 41 V
-0 1825 R
-0 523 V
-stroke
-4104 1399 N
-30 0 V
-0 1825 V
--30 0 V
-0 -1825 V
-Z stroke
-1.000 4458 1409 30 1884 BoxColFill
-4473 1366 M
-0 43 V
-0 1884 R
-0 630 V
-stroke
-4458 1409 N
-30 0 V
-0 1884 V
--30 0 V
-0 -1884 V
-Z stroke
-1.000 4811 1474 30 1741 BoxColFill
-4826 1212 M
-0 262 V
-0 1741 R
-0 636 V
-stroke
-4811 1474 N
-30 0 V
-0 1741 V
--30 0 V
-0 -1741 V
-Z stroke
-1.000 5165 1467 30 1752 BoxColFill
-5180 1354 M
-0 113 V
-0 1752 R
-0 661 V
-stroke
-5165 1467 N
-30 0 V
-0 1752 V
--30 0 V
-0 -1752 V
-Z stroke
-1.000 5518 1545 30 1696 BoxColFill
-5533 1235 M
-0 310 V
-0 1696 R
-0 551 V
-stroke
-5518 1545 N
-30 0 V
-0 1696 V
--30 0 V
-0 -1696 V
-Z stroke
-1.000 5872 1575 30 1328 BoxColFill
-5887 1235 M
-0 340 V
-0 1328 R
-0 866 V
-stroke
-5872 1575 N
-30 0 V
-0 1328 V
--30 0 V
-0 -1328 V
-Z stroke
-1.000 6225 1811 30 1013 BoxColFill
-6240 1385 M
-0 426 V
-0 1013 R
-0 288 V
-stroke
-6225 1811 N
-30 0 V
-0 1013 V
--30 0 V
-0 -1013 V
-Z stroke
-1.000 6579 1849 30 1009 BoxColFill
-6594 1378 M
-0 471 V
-0 1009 R
-0 294 V
-stroke
-6579 1849 N
-30 0 V
-0 1009 V
--30 0 V
-0 -1009 V
-Z stroke
-% End plot #1
-% Begin plot #2
 1.000 UP
-3.000 UL
-LTb
-0.00 0.62 0.45 C LCb setrgbcolor
-2504 4767 M
-[ [(Helvetica) 140.0 0.0 true true 0 (avg)]
-] -46.7 MRshow
-1.000 UP
-3.000 UL
-LTb
-0.00 0.62 0.45 C 2588 4767 M
-399 0 V
-1291 1160 M
-354 451 V
-353 291 V
-354 86 V
-353 140 V
-354 223 V
-353 248 V
-354 189 V
-353 78 V
-354 76 V
-353 -43 V
-354 14 V
-353 -23 V
-354 -186 V
-353 -213 V
-354 30 V
-1291 1160 Crs
-1645 1611 Crs
-1998 1902 Crs
-2352 1988 Crs
-2705 2128 Crs
-3059 2351 Crs
-3412 2599 Crs
-3766 2788 Crs
-4119 2866 Crs
-4473 2942 Crs
-4826 2899 Crs
-5180 2913 Crs
-5533 2890 Crs
-5887 2704 Crs
-6240 2491 Crs
-6594 2521 Crs
-2787 4767 Crs
-% End plot #2
-% Begin plot #3
-1.000 UP
-1.000 UL
-LTb
-0.34 0.71 0.91 C LCb setrgbcolor
-4247 4907 M
-[ [(Helvetica) 140.0 0.0 true true 0 (1p)]
-] -46.7 MRshow
-1.000 UP
-1.000 UL
-LTb
-0.34 0.71 0.91 C 4331 4907 M
-399 0 V
-1291 1134 M
-354 256 V
-353 -24 V
-354 0 V
-353 8 V
-354 0 V
-353 4 V
-354 3 V
-353 4 V
-354 0 V
-353 7 V
-354 -4 V
-353 21 V
-354 0 V
-353 118 V
-354 246 V
-1291 1134 Star
-1645 1390 Star
-1998 1366 Star
-2352 1366 Star
-2705 1374 Star
-3059 1374 Star
-3412 1378 Star
-3766 1381 Star
-4119 1385 Star
-4473 1385 Star
-4826 1392 Star
-5180 1388 Star
-5533 1409 Star
-5887 1409 Star
-6240 1527 Star
-6594 1773 Star
-4530 4907 Star
-% End plot #3
-% Begin plot #4
-1.000 UP
-1.000 UL
-LTb
-0.90 0.62 0.00 C LCb setrgbcolor
-4247 4767 M
-[ [(Helvetica) 140.0 0.0 true true 0 (99p)]
-] -46.7 MRshow
-1.000 UP
-1.000 UL
-LTb
-0.90 0.62 0.00 C 4331 4767 M
-399 0 V
-1291 1195 M
-354 547 V
-353 570 V
-354 153 V
-353 220 V
-354 295 V
-353 344 V
-354 179 V
-353 57 V
-354 56 V
-353 -40 V
-354 21 V
-353 -46 V
-354 -170 V
-353 -443 V
-354 44 V
-1291 1195 Box
-1645 1742 Box
-1998 2312 Box
-2352 2465 Box
-2705 2685 Box
-3059 2980 Box
-3412 3324 Box
-3766 3503 Box
-4119 3560 Box
-4473 3616 Box
-4826 3576 Box
-5180 3597 Box
-5533 3551 Box
-5887 3381 Box
-6240 2938 Box
-6594 2982 Box
-4530 4767 Box
-% End plot #4
-% Begin plot #5
-1.000 UP
-1.000 UL
-LTb
-0.94 0.89 0.26 C LCb setrgbcolor
-5990 4907 M
-[ [(Helvetica) 140.0 0.0 true true 0 (sd)]
-] -46.7 MRshow
-1.000 UP
-1.000 UL
-LTb
-0.94 0.89 0.26 C 6074 4907 M
-399 0 V
-1291 676 M
-354 1071 V
-353 269 V
-354 126 V
-353 193 V
-354 310 V
-353 315 V
-354 208 V
-353 22 V
-354 71 V
-353 -21 V
-354 -2 V
-353 -37 V
-354 -130 V
-353 -456 V
-354 38 V
-1291 676 BoxF
-1645 1747 BoxF
-1998 2016 BoxF
-2352 2142 BoxF
-2705 2335 BoxF
-3059 2645 BoxF
-3412 2960 BoxF
-3766 3168 BoxF
-4119 3190 BoxF
-4473 3261 BoxF
-4826 3240 BoxF
-5180 3238 BoxF
-5533 3201 BoxF
-5887 3071 BoxF
-6240 2615 BoxF
-6594 2653 BoxF
-6273 4907 BoxF
-% End plot #5
-2.000 UL
-LTb
-LCb setrgbcolor
-1.000 UL
-LTB
-LCb setrgbcolor
-938 4339 N
-938 448 L
-6009 0 V
-0 3891 V
--6009 0 V
-Z stroke
-1.000 UP
-1.000 UL
-LTb
-LCb setrgbcolor
+grestore % colour palette end
 stroke
 grestore
 end

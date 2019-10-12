@@ -10,7 +10,8 @@ while read -r LINE ; do
     #echo $LINE
     CUR=$(($CUR + 1))
     ARRLINE=($LINE)
-    MULT=${ARRLINE[5]}
+    #MULT=${ARRLINE[5]}
+    MULT=${ARRLINE[4]}
     #echo $MULT "@@@"
     continue
   fi
