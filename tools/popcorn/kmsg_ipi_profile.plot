@@ -2,8 +2,8 @@
 set terminal postscript eps size 5in,5in enhanced color font 'Helvetica,20'
 set output "kmsg_ipi_profile.eps"
 
-set yrange[0:143]
-set xrange[0:143]
+set yrange[-0.5:143.5]
+set xrange[-0.5:143.5]
 set cbrange [-1:101]
 set cblabel "useconds"
 
