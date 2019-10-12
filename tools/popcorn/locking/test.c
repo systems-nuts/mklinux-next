@@ -96,6 +96,13 @@ void * test(void *args)
 #endif
 	cpu_set_t set, get_set;
 	CPU_ZERO(&set); CPU_ZERO(&get_set);
+
+struct sched_param sp = { .sched_priority = (99 -2) }; //TODO fetch max sched prio
+
+    if (0!=pthread_setschedparam(*(tdata->thread), SCHED_FIFO, &sp)) {
+	perror("sched_set_scheduler()");
+	exit(1);
+    }
 	
 	printf("Thread %d going to cpu %d\n", tdata->id, tdata->cpu );
 	
@@ -288,6 +295,14 @@ printf("cpu %d cur %d\n", cpus, cur);
         perror("error during signal registration");
         exit(1);
     }
+
+struct sched_param sp = { .sched_priority = (99 -1) };
+
+    if (0!=sched_setscheduler(0, SCHED_FIFO, &sp)) {
+	perror("sched_set_scheduler()");
+	exit(1);
+}
+
 #define PRINT_OUTPUT
 #ifdef PRINT_OUTPUT
     printf("STARTING...\n");
