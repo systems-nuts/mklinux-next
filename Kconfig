@@ -12,6 +12,7 @@ source "scripts/Kconfig.include"
 source "init/Kconfig"
 
 source "kernel/Kconfig.freezer"
+source "kernel/Kconfig.popcorn"
 
 source "fs/Kconfig.binfmt"
 
