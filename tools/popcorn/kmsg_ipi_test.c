@@ -45,7 +45,7 @@ module_param(test_numa_node,int,0660);
 static unsigned long long tinterrupt[5];
 
 extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
-
+extern void arch_send_call_popcorn_single_ipi(int cpu);
 static inline unsigned long RDTSC(void)
 {
 	unsigned long val=0;
