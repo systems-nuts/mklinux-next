@@ -94,6 +94,10 @@ extern void secondary_entry(void);
 
 extern void arch_send_call_function_single_ipi(int cpu);
 extern void arch_send_call_function_ipi_mask(const struct cpumask *mask);
+#ifdef CONFIG_POPCORN_KMSG
+extern void arch_send_call_popcorn_single_ipi(int cpu);
+#endif
+
 
 #ifdef CONFIG_ARM64_ACPI_PARKING_PROTOCOL
 extern void arch_send_wakeup_ipi_mask(const struct cpumask *mask);

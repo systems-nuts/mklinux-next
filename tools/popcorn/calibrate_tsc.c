@@ -1,6 +1,8 @@
 /* 
  * x86 rdtsc calibration and overhead tool
  * Antonio Barbalace, Stevens 2019
+ * ARM support
+ * Tong Xing, Edinburgh 2021
  */
 
 #include <unistd.h>
@@ -20,17 +22,22 @@ static int counter = 0;
 
 static inline unsigned long rdtsc(void)
 {
-	unsigned long low, high;
+	unsigned long val=0;
+        asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+	return val;
 
-	asm volatile("rdtsc" : "=a" (low), "=d" (high));
+	//unsigned long low, high;
 
-	return ((low) | (high) << 32);
+	//asm volatile("rdtsc" : "=a" (low), "=d" (high));
+
+	//return ((low) | (high) << 32);
 }
 
 static inline unsigned long rdtsc_ordered(void)
 {
 #if 1
-	asm volatile("mfence" : : : "memory");
+	asm volatile("" : : : "memory");
+	//asm volatile("mfence" : : : "memory");
 #else
 	asm volatile("lfence" : : : "memory");
 #endif	

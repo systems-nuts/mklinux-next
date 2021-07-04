@@ -62,7 +62,9 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/ipi.h>
-
+#ifdef CONFIG_POPCORN_KMSG
+extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
+#endif 
 DEFINE_PER_CPU_READ_MOSTLY(int, cpu_number);
 EXPORT_PER_CPU_SYMBOL(cpu_number);
 
@@ -82,7 +84,12 @@ enum ipi_msg_type {
 	IPI_CPU_CRASH_STOP,
 	IPI_TIMER,
 	IPI_IRQ_WORK,
+#ifdef CONFIG_POPCORN_KMSG
+	IPI_WAKEUP,
+	IPI_POPCORN
+#else
 	IPI_WAKEUP
+#endif
 };
 
 #ifdef CONFIG_HOTPLUG_CPU
@@ -749,6 +756,9 @@ static const char *ipi_types[NR_IPI] __tracepoint_string = {
 	S(IPI_TIMER, "Timer broadcast interrupts"),
 	S(IPI_IRQ_WORK, "IRQ work interrupts"),
 	S(IPI_WAKEUP, "CPU wake-up interrupts"),
+#ifdef CONFIG_POPCORN_KMSG 
+	S(IPI_POPCORN, "PORNHUB -> POPCORN HUB"),
+#endif
 };
 
 static void smp_cross_call(const struct cpumask *target, unsigned int ipinr)
@@ -791,6 +801,14 @@ void arch_send_call_function_single_ipi(int cpu)
 {
 	smp_cross_call(cpumask_of(cpu), IPI_CALL_FUNC);
 }
+#ifdef CONFIG_POPCORN_KMSG
+
+void arch_send_call_popcorn_single_ipi(int cpu)
+{
+        smp_cross_call(cpumask_of(cpu), IPI_POPCORN);
+}
+EXPORT_SYMBOL(arch_send_call_popcorn_single_ipi);
+#endif
 
 #ifdef CONFIG_ARM64_ACPI_PARKING_PROTOCOL
 void arch_send_wakeup_ipi_mask(const struct cpumask *mask)
@@ -853,6 +871,9 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 	unsigned int cpu = smp_processor_id();
 	struct pt_regs *old_regs = set_irq_regs(regs);
 
+#ifdef CONFIG_POPCORN_KMSG	
+	unsigned long long val=0;
+#endif 
 	if ((unsigned)ipinr < NR_IPI) {
 		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
 		__inc_irq_stat(cpu, ipi_irqs[ipinr]);
@@ -883,6 +904,15 @@ void handle_IPI(int ipinr, struct pt_regs *regs)
 			unreachable();
 		}
 		break;
+#ifdef CONFIG_POPCORN_KMSG
+	case IPI_POPCORN:
+ 	        asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+                irq_enter();
+		if (popcorn_kmsg_interrupt_handler)
+	                popcorn_kmsg_interrupt_handler(regs, val);
+                irq_exit();
+                break;
+#endif
 
 #ifdef CONFIG_GENERIC_CLOCKEVENTS_BROADCAST
 	case IPI_TIMER:

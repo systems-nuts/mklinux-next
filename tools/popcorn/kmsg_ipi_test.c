@@ -1,6 +1,8 @@
 /*
  * IPI latency measurement for Popcorn Kernel Messaging
  * Antonio Barbalace, Stevens 2019
+ * ARM Support
+ * Tong Xing, Edinburgh
  */
 
 #include <linux/irq.h>
@@ -18,22 +20,13 @@
 #include <linux/init.h>
 #include <linux/proc_fs.h>
 
-#include <asm/apic.h>
 #include <asm/hardirq.h>
 #include <asm/setup.h>
-#include <asm/bootparam.h>
 #include <asm/errno.h>
-#include <asm/msr.h>
 #include <asm/uaccess.h>
-#include <asm/tsc.h>
-
+#include <asm/smp.h>
 //#include <asm/irq.h> //for x86_platform_ipi_callback
 
-#ifdef ORDERED
- #define RDTSC rdtsc_ordered
-#else
- #define RDTSC rdtsc
-#endif
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Antonio Barbalace");
@@ -52,6 +45,15 @@ module_param(test_numa_node,int,0660);
 static unsigned long long tinterrupt[5];
 
 extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned long long timestamp);
+
+static inline unsigned long RDTSC(void)
+{
+	unsigned long val=0;
+        asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+        return val;
+}
+
+
 
 void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 {
@@ -96,7 +98,8 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 
 	preempt_disable();
 	tpdis = RDTSC();
-	apic->send_IPI(cpu, POPCORN_KMSG_VECTOR);
+	//apic->send_IPI(cpu, POPCORN_KMSG_VECTOR);
+	arch_send_call_popcorn_single_ipi(cpu);
 	tsent = RDTSC();
 	preempt_enable();
 	tpen = RDTSC();
@@ -218,10 +221,11 @@ static struct file_operations kmsg_ipi_ops =
 
 static int kmsg_ipi_test_init(void)
 {
+
 	ent = proc_create("ipi_test", 0660, NULL, &kmsg_ipi_ops);
 	printk(KERN_ALERT "kmsg_ipi_test registered /proc/kmsg_ipi_test\n");
 
-	printk("kmsg_ipi_test cpu_khz %d tsc_khz %d\n", cpu_khz, tsc_khz);
+	//printk("kmsg_ipi_test cpu_khz %d tsc_khz %d\n", cpu_khz, tsc_khz);
 	
 	/* 
 	 * an alternative is to use the x86_platform_ipi_callback defined in
