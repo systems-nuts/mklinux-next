@@ -1,10 +1,10 @@
 menu "Popcorn Multi-kernel Support"
-
+  
 config POPCORN_KMSG
-	bool "Popcorn Kernel Messaging"
-	default y
-	help
-		Enable or disable support for inter and intra kernel messaging in Popcorn multi-kernel.
-		
+        bool "Popcorn Kernel Messaging"
+        default y
+        help
+                Enable or disable support for inter and intra kernel messaging in Popcorn multi-kernel.
+
 
 endmenu
