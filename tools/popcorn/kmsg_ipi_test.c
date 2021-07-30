@@ -26,7 +26,7 @@
 #include <asm/msr.h>
 #include <asm/uaccess.h>
 #include <asm/tsc.h>
-
+#include <asm/mwait.h>
 //#include <asm/irq.h> //for x86_platform_ipi_callback
 
 #ifdef ORDERED
@@ -55,11 +55,8 @@ extern void (*popcorn_kmsg_interrupt_handler)(struct pt_regs *regs, unsigned lon
 
 void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 {
+	//tinterrupt[3] = *(&inc);
 	register unsigned long long tdone, tenter = RDTSC();
-	//unsigned long flags;
-
-	//local_irq_save(flags);
-	//irq_enter();
 	*(&done) = 1;
 	mb();
 	//irq_exit();
@@ -67,11 +64,10 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
 	tdone = RDTSC();
 	
 	// save the timestamps
-	tinterrupt[3] = *(&inc);
 	tinterrupt[0] = ts;
 	tinterrupt[1] = tenter;
 	tinterrupt[2] = tdone;
-	tinterrupt[4] = *(&inc);
+	//tinterrupt[4] = *(&inc);
 }
 
 #define MAX_LOOP 1999999999
@@ -99,11 +95,13 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	apic->send_IPI(cpu, POPCORN_KMSG_VECTOR);
 	tsent = RDTSC();
 	preempt_enable();
-	tpen = RDTSC();
-	
-	while ((*(&done) == 0) && ((*(&inc))++ < MAX_LOOP) ) {};//busy waiting
-	tfinish = RDTSC();
 
+	tpen = RDTSC();
+	__monitor(&done, 0, 0);
+	if (*(&done) == 0)
+		__mwait(0,0);
+//	while ((*(&done) == 0) && ((*(&inc))++ < MAX_LOOP) ) {};//busy waiting
+	tfinish = RDTSC();
 	if (ts) {
 		ts[0] = tinit;
 		ts[1] = tpdis;
@@ -113,7 +111,8 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	}
 
 	if (done)
-		return inc;
+		return 1;
+//		return inc;
 	else
 		return 0;
 }
