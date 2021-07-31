@@ -78,7 +78,7 @@ void __smp_popcorn_kmsg_interrupt(struct pt_regs *regs, unsigned long long ts)
  */
 inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 {
-	register unsigned long long tinit, tpdis, tsent, tpen, tfinish;
+	register unsigned long long tlove, tinit, tpdis, tsent, tpen, tfinish;
 	//register unsigned long
 	*(&inc)=0;
 
@@ -99,15 +99,17 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	tpen = RDTSC();
 	__monitor(&done, 0, 0);
 	if (*(&done) == 0)
-		__mwait(0,0);
-//	while ((*(&done) == 0) && ((*(&inc))++ < MAX_LOOP) ) {};//busy waiting
+		tlove = RDTSC();
+		__mwait(&done,0);
 	tfinish = RDTSC();
+//	while ((*(&done) == 0) && ((*(&inc))++ < MAX_LOOP) ) {};//busy waiting
 	if (ts) {
 		ts[0] = tinit;
 		ts[1] = tpdis;
 		ts[2] = tsent;
 		ts[3] = tpen;
-		ts[4] = tfinish;
+		ts[4] = tlove;
+		ts[5] = tfinish;
 	}
 
 	if (done)
@@ -172,7 +174,7 @@ static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, 
 {
 	char buf[BUFSIZE];
 	int len=0, ret =-1;
-	unsigned long long timestamps[5];
+	unsigned long long timestamps[6];
 
         if(*ppos > 0)
                 return 0;
@@ -192,9 +194,9 @@ static ssize_t kmsg_ipi_read(struct file *file, char __user *ubuf,size_t count, 
 		len += sprintf(buf + len,"inthnd %lld %lld %lld (%lld %lld)\n",
 						tinterrupt[0], tinterrupt[1], tinterrupt[2], tinterrupt[3], tinterrupt[4]);
 #else
-                len += sprintf(buf + len,"sender %lld %lld %lld %lld (%d)\n",
+                len += sprintf(buf + len,"sender %lld %lld %lld %lld %lld (%d)\n",
                                                 timestamps[1] - timestamps[0], timestamps[2] - timestamps[1],
-						timestamps[3] - timestamps[2], timestamps[4] - timestamps[3], ret);
+						timestamps[3] - timestamps[2], timestamps[4] - timestamps[3],timestamps[5] - timestamps[4], ret);
                 len += sprintf(buf + len,"inthnd %lld %lld (%lld %lld)\n",
                                                 tinterrupt[1] - tinterrupt[0], tinterrupt[2] - tinterrupt[1], tinterrupt[3], tinterrupt[4]);
 #endif
