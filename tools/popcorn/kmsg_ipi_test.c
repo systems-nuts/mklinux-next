@@ -99,8 +99,10 @@ inline static int __kmsg_ipi_test(unsigned long long *ts, int cpu)
 	tpen = RDTSC();
 	__monitor(&done, 0, 0);
 	if (*(&done) == 0)
+	{	
 		tlove = RDTSC();
 		__mwait(&done,0);
+	}
 	tfinish = RDTSC();
 //	while ((*(&done) == 0) && ((*(&inc))++ < MAX_LOOP) ) {};//busy waiting
 	if (ts) {
